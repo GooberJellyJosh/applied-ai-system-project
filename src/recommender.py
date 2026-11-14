@@ -72,6 +72,12 @@ SCORING_MODES: Dict[str, ScoringMode] = {
     ),
 }
 
+# Diversity penalties (used when recommend_songs is called with diversity=True).
+# Each time an artist or genre is already in the top list, the next song from
+# that artist/genre loses these points, so one artist can't fill every slot.
+ARTIST_REPEAT_PENALTY = 1.0
+GENRE_REPEAT_PENALTY = 0.5
+
 # Features that aren't on a 0-1 scale are divided by their range so every
 # closeness score lands on the same 0-1 scale.
 TEMPO_RANGE_BPM = 120.0
@@ -298,16 +304,70 @@ def get_scoring_mode(mode_name: str) -> ScoringMode:
 
 
 def recommend_songs(
-    user_prefs: Dict, songs: List[Dict], k: int = 5, mode: ScoringMode = BALANCED_MODE
+    user_prefs: Dict,
+    songs: List[Dict],
+    k: int = 5,
+    mode: ScoringMode = BALANCED_MODE,
+    diversity: bool = False,
 ) -> List[Tuple[Dict, float, str]]:
     """Score every song, sort from highest to lowest, and return the top k as (song, score, explanation)."""
+    # Step 1: judge every song in the catalog with the scoring rule
     scored_songs = []
     for song in songs:
         song_score, reasons = score_song(user_prefs, song, mode)
-        explanation = "; ".join(reasons)
-        scored_songs.append((song, song_score, explanation))
+        scored_songs.append((song, song_score, reasons))
 
-    # sorted() returns a new list and leaves the caller's catalog untouched.
-    # Ties are broken alphabetically by title so the output is stable.
+    # Step 2: rank. sorted() returns a new list and leaves the caller's
+    # catalog untouched. Ties are broken alphabetically by title.
     ranked = sorted(scored_songs, key=lambda item: (-item[1], item[0]["title"]))
-    return ranked[:k]
+
+    if diversity:
+        ranked = apply_diversity_penalty(ranked, k)
+
+    return [(song, song_score, "; ".join(reasons)) for song, song_score, reasons in ranked[:k]]
+
+
+def apply_diversity_penalty(
+    ranked_songs: List[Tuple[Dict, float, List[str]]], k: int
+) -> List[Tuple[Dict, float, List[str]]]:
+    """Greedily build the top k, penalizing songs whose artist or genre is already picked."""
+    remaining = list(ranked_songs)
+    selected = []
+    artist_counts: Dict[str, int] = {}
+    genre_counts: Dict[str, int] = {}
+
+    while remaining and len(selected) < k:
+        best_index = 0
+        best_adjusted_score = None
+        best_penalty_reasons: List[str] = []
+
+        # Re-check every remaining song against what has already been picked
+        for index, (song, song_score, _) in enumerate(remaining):
+            artist_repeats = artist_counts.get(song["artist"], 0)
+            genre_repeats = genre_counts.get(song["genre"], 0)
+            penalty_reasons = []
+            if artist_repeats:
+                artist_penalty = ARTIST_REPEAT_PENALTY * artist_repeats
+                penalty_reasons.append(f"diversity: artist already listed (-{artist_penalty:.2f})")
+            else:
+                artist_penalty = 0.0
+            if genre_repeats:
+                genre_penalty = GENRE_REPEAT_PENALTY * genre_repeats
+                penalty_reasons.append(f"diversity: genre already listed (-{genre_penalty:.2f})")
+            else:
+                genre_penalty = 0.0
+
+            adjusted_score = round(song_score - artist_penalty - genre_penalty, 2)
+            # Strictly greater keeps the original order (and title tie-break) on ties
+            if best_adjusted_score is None or adjusted_score > best_adjusted_score:
+                best_index = index
+                best_adjusted_score = adjusted_score
+                best_penalty_reasons = penalty_reasons
+
+        # Move the winner into the results and remember its artist and genre
+        song, _, reasons = remaining.pop(best_index)
+        selected.append((song, best_adjusted_score, reasons + best_penalty_reasons))
+        artist_counts[song["artist"]] = artist_counts.get(song["artist"], 0) + 1
+        genre_counts[song["genre"]] = genre_counts.get(song["genre"], 0) + 1
+
+    return selected

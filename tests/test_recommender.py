@@ -155,3 +155,29 @@ def test_mood_first_mode_can_cross_genres():
 def test_unknown_mode_raises_helpful_error():
     with pytest.raises(ValueError):
         get_scoring_mode("not_a_mode")
+
+
+# ---------------------------------------------------------------------------
+# Diversity penalty tests
+# ---------------------------------------------------------------------------
+def test_diversity_penalty_limits_repeat_artists():
+    songs = load_songs("data/songs.csv")
+    user_prefs = {"genre": "lofi", "mood": "chill", "energy": 0.4}
+    plain = recommend_songs(user_prefs, songs, k=5)
+    diverse = recommend_songs(user_prefs, songs, k=5, diversity=True)
+    plain_titles = [song["title"] for song, _, _ in plain]
+    diverse_titles = [song["title"] for song, _, _ in diverse]
+    # "Focus Flow" is LoRoom's second lofi song, so it should drop in the diverse list
+    assert diverse_titles.index("Focus Flow") > plain_titles.index("Focus Flow")
+    # The penalized score is lower than the raw score
+    plain_scores = {song["title"]: score for song, score, _ in plain}
+    diverse_scores = {song["title"]: score for song, score, _ in diverse}
+    assert diverse_scores["Focus Flow"] < plain_scores["Focus Flow"]
+
+
+def test_diversity_penalty_is_explained():
+    songs = load_songs("data/songs.csv")
+    user_prefs = {"genre": "pop", "mood": "happy", "energy": 0.8}
+    diverse = recommend_songs(user_prefs, songs, k=5, diversity=True)
+    all_reasons = " ".join(explanation for _, _, explanation in diverse)
+    assert "diversity:" in all_reasons

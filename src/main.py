@@ -24,6 +24,11 @@ def parse_arguments() -> argparse.Namespace:
         help="scoring strategy to rank songs with (default: balanced)",
     )
     parser.add_argument("--k", type=int, default=TOP_K, help="number of songs to recommend")
+    parser.add_argument(
+        "--diverse",
+        action="store_true",
+        help="penalize repeat artists/genres so the top list has more variety",
+    )
     return parser.parse_args()
 
 
@@ -56,7 +61,9 @@ def main() -> None:
     # Starter example profile: upbeat pop listener
     user_prefs = {"genre": "pop", "mood": "happy", "energy": 0.8}
 
-    recommendations = recommend_songs(user_prefs, songs, k=arguments.k, mode=scoring_mode)
+    recommendations = recommend_songs(
+        user_prefs, songs, k=arguments.k, mode=scoring_mode, diversity=arguments.diverse
+    )
     print_recommendations("Default Pop / Happy", user_prefs, scoring_mode.name, recommendations)
 
 
