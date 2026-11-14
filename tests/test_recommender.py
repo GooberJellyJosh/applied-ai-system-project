@@ -1,4 +1,19 @@
-from src.recommender import Song, UserProfile, Recommender
+"""Tests for the VibeFinder recommender, scoring modes, diversity, and table output."""
+
+import pytest
+
+from src.recommender import (
+    SCORING_MODES,
+    Recommender,
+    Song,
+    UserProfile,
+    closeness,
+    get_scoring_mode,
+    load_songs,
+    recommend_songs,
+    score_song,
+)
+from src.table_format import format_table
 
 def make_small_recommender() -> Recommender:
     songs = [
@@ -64,7 +79,6 @@ def test_explain_recommendation_returns_non_empty_string():
 # ---------------------------------------------------------------------------
 # Functional interface tests
 # ---------------------------------------------------------------------------
-from src.recommender import load_songs, score_song, recommend_songs, closeness
 
 
 def test_load_songs_converts_numeric_columns():
@@ -126,8 +140,6 @@ def test_mood_tags_and_decade_add_points():
 # ---------------------------------------------------------------------------
 # Scoring mode (strategy) tests
 # ---------------------------------------------------------------------------
-import pytest
-from src.recommender import SCORING_MODES, get_scoring_mode
 
 
 def test_modes_change_the_weights_used():
@@ -186,7 +198,6 @@ def test_diversity_penalty_is_explained():
 # ---------------------------------------------------------------------------
 # Table formatting tests
 # ---------------------------------------------------------------------------
-from src.table_format import format_table
 
 
 def test_format_table_handles_multiline_cells():

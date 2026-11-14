@@ -1,61 +1,95 @@
-# 🎧 Model Card: Music Recommender Simulation
+# 🎧 Model Card: VibeFinder 1.0
 
-## 1. Model Name  
+**Author:** Joshua Lookshin (z23411056)
 
-Give your model a short, descriptive name.  
-Example: **VibeFinder 1.0**  
+## 1. Model Name
 
----
-
-## 2. Intended Use  
-
-Describe what your recommender is designed to do and who it is for. 
-
-Prompts:  
-
-- What kind of recommendations does it generate  
-- What assumptions does it make about the user  
-- Is this for real users or classroom exploration  
+**VibeFinder 1.0**, a content-based music recommender simulation.
 
 ---
 
-## 3. How the Model Works  
+## 2. Intended Use
 
-Explain your scoring approach in simple language.  
+**Goal / task:** Given a listener's taste profile (favorite genre, favorite mood, target
+energy, and optional extras), VibeFinder suggests the top 5 songs from a small catalog and
+explains why each one was picked.
 
-Prompts:  
+**Intended use:**
 
-- What features of each song are used (genre, energy, mood, etc.)  
-- What user preferences are considered  
-- How does the model turn those into a score  
-- What changes did you make from the starter logic  
+- Classroom exploration of how recommenders turn data into rankings.
+- Experimenting with weights, scoring modes, and diversity rules to see how results change.
+- Showing why a song was picked through its list of reasons.
 
-Avoid code here. Pretend you are explaining the idea to a friend who does not program.
+**Assumptions about the user:** They can describe their taste with one genre, one mood,
+and a target energy level, and their taste doesn't change with time of day or activity.
 
----
+**Not intended for:**
 
-## 4. Data  
-
-Describe the dataset the model uses.  
-
-Prompts:  
-
-- How many songs are in the catalog  
-- What genres or moods are represented  
-- Did you add or remove data  
-- Are there parts of musical taste missing in the dataset  
+- Real users or a real product. The catalog is 20 made-up songs.
+- Judging the quality of an artist or genre. A low score only means "not similar to this
+  profile."
+- Any decision that matters (ads, payments to artists, content moderation).
+- Users whose taste can't be described with these labels. It has no lyrics, language,
+  culture, or listening history.
 
 ---
 
-## 5. Strengths  
+## 3. How the Model Works
 
-Where does your system seem to work well  
+Think of it as a judge with a checklist who looks at every song one at a time:
 
-Prompts:  
+1. **Right genre?** Big bonus (+2 points).
+2. **Right mood?** Smaller bonus (+1 point).
+3. **How close is the energy?** Up to +1.5 points. A perfect match gets all of it, and a
+   song gets fewer points the further it is from the target, *in either direction*. A user
+   who wants calm music isn't rewarded with the loudest song.
+4. **Acoustic or not?** Up to +0.5 depending on whether the user likes acoustic sounds.
+5. **Extras, only if the user sets them:** closeness to a target valence (happiness),
+   danceability, tempo, popularity, instrumentalness, or speechiness (up to +0.5 each),
+   shared detailed mood tags like "nostalgic" (+0.5 each, max +1.0), and the user's favorite
+   decade (+0.5, or +0.25 for the decade next to it).
 
-- User types for which it gives reasonable results  
-- Any patterns you think your scoring captures correctly  
-- Cases where the recommendations matched your intuition  
+The points are added up, every song is sorted from highest to lowest, and the top 5 are
+shown with the list of reasons.
+
+**Changes from the starter logic:** The starter had no scoring at all. I added the full
+checklist above, five new song attributes, switchable **scoring modes** (genre-first,
+mood-first, energy-focused, and the weight-shift experiment), an optional **diversity
+penalty** that subtracts points when an artist (−1.0) or genre (−0.5) is already in the
+list, and a formatted results table.
+
+---
+
+## 4. Data
+
+- **20 songs** in `data/songs.csv`. The starter had 10, and I added 10.
+- **16 genres:** pop, lofi (3 songs each), and one song each for rock, ambient, jazz,
+  synthwave, indie pop, hip hop, classical, metal, country, r&b, edm, folk, reggae, and
+  blues.
+- **14 moods:** chill, happy, intense, relaxed, sad, moody, focused, confident, peaceful,
+  aggressive, nostalgic, romantic, euphoric, and melancholy.
+- **Features:** energy, tempo, valence, danceability, acousticness, plus five I added:
+  popularity, release decade, detailed mood tags, instrumentalness, and speechiness.
+- **What's missing:** lyrics, language, artist background, real listening data (plays,
+  skips, likes), and most of the world's genres (Latin, Afrobeats, K-pop, and others). The
+  numbers are hand-made estimates, not measurements, so they reflect my idea of what a song
+  "feels" like.
+
+---
+
+## 5. Strengths
+
+- **Clear-cut profiles work well.** Chill Lofi, Deep Intense Rock, and Nostalgic Night Owl
+  all put a near-perfect song at #1 with a big lead.
+- **Every result is explained.** The reasons add up exactly to the score, so it's easy to
+  see *why* a song ranked where it did, and easy to spot when the logic is wrong.
+- **Closeness scoring captures "vibe."** Two profiles with opposite energy (lofi vs.
+  high-energy pop) got completely different lists, and low-energy listeners weren't pushed
+  toward loud songs.
+- **Good "same vibe, different genre" picks.** Chill Lofi's #4 and #5 (ambient and jazz)
+  and the night owl's tag-based picks felt like songs I'd actually want next.
+- **Easy to experiment with.** Swapping modes or turning on diversity takes one
+  command-line flag, with no code changes.
 
 ---
 
@@ -165,25 +199,40 @@ built from simple addition still *felt* like a real playlist for the normal prof
 
 ---
 
-## 8. Future Work  
+## 8. Future Work
 
-Ideas for how you would improve the model next.  
-
-Prompts:  
-
-- Additional features or preferences  
-- Better ways to explain recommendations  
-- Improving diversity among the top results  
-- Handling more complex user tastes  
+1. **Fuzzy matching for genres and moods.** Treat "indie pop" as partly "pop" and "sad" as
+   close to "melancholy" (for example with a small similarity table) so near-misses earn
+   partial credit.
+2. **Check inputs and admit uncertainty.** Clamp targets to 0–1, warn when a genre isn't in
+   the catalog, and say "tell me more about your taste" instead of returning an
+   alphabetical list for an empty profile.
+3. **Balance the energy rule.** Give energy points only when a song also matches at least
+   one label, or normalize scores, so loud songs stop showing up in every list.
+4. **Add listening behavior.** Use simulated likes and skips to add a collaborative
+   filtering signal, so the system can make surprising picks and not only "more of the same."
+5. **Support more than one taste.** Let a profile hold several genres and moods (for
+   example "rock for the gym, lofi for studying").
 
 ---
 
-## 9. Personal Reflection  
+## 9. Personal Reflection
 
-A few sentences about your experience.  
+**Biggest learning moment:** Running the "Sad but Hyped" profile. I expected the system to
+find some middle ground, but it put a *euphoric* edm song first just because the genre
+matched. Nothing in the code was "wrong," but the weights made a choice I didn't intend.
+That's when I understood that a recommender's behavior lives in its weights and data, not
+only in its code, and that testing with strange profiles finds problems that normal
+profiles hide.
 
-Prompts:  
+**How simple algorithms can still "feel" like recommendations:** The whole system is
+addition and sorting, yet the Chill Lofi list looked like a real study playlist, and the
+night owl list connected a lofi track, a country song, and a jazz song through shared
+"nostalgic" and "nocturnal" tags. A few well-chosen features and a closeness formula were
+enough to make the results feel personal, which also shows how easily people could trust a
+system like this more than they should.
 
-- What you learned about recommender systems  
-- Something unexpected or interesting you discovered  
-- How this changed the way you think about music recommendation apps  
+**What I'd try next:** I'd add simulated user listening history so I could compare
+content-based results with collaborative filtering side by side, and add fuzzy matching for
+genres and moods. I'd also like to measure diversity directly (how many different artists
+and genres show up across all users), not just eyeball it.
