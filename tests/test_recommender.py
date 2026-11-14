@@ -121,3 +121,37 @@ def test_mood_tags_and_decade_add_points():
     detailed_score, reasons = score_song(detailed_prefs, song)
     assert detailed_score == base_score + 1.0 + 0.5  # two tags (capped at 1.0) + decade
     assert any("shared mood tags" in reason for reason in reasons)
+
+
+# ---------------------------------------------------------------------------
+# Scoring mode (strategy) tests
+# ---------------------------------------------------------------------------
+import pytest
+from src.recommender import SCORING_MODES, get_scoring_mode
+
+
+def test_modes_change_the_weights_used():
+    user_prefs = {"genre": "pop", "mood": "happy"}
+    song = {"genre": "pop", "mood": "happy", "energy": 0.5, "acousticness": 0.5}
+    balanced_score, _ = score_song(user_prefs, song, SCORING_MODES["balanced"])
+    genre_first_score, _ = score_song(user_prefs, song, SCORING_MODES["genre_first"])
+    mood_first_score, _ = score_song(user_prefs, song, SCORING_MODES["mood_first"])
+    assert balanced_score == 3.0      # 2.0 + 1.0
+    assert genre_first_score == 4.5   # 4.0 + 0.5
+    assert mood_first_score == 3.75   # 0.75 + 3.0
+
+
+def test_mood_first_mode_can_cross_genres():
+    songs = load_songs("data/songs.csv")
+    user_prefs = {"genre": "pop", "mood": "sad", "energy": 0.45}
+    balanced_top = recommend_songs(user_prefs, songs, k=2)
+    mood_first_top = recommend_songs(user_prefs, songs, k=2, mode=SCORING_MODES["mood_first"])
+    balanced_titles = [song["title"] for song, _, _ in balanced_top]
+    mood_first_titles = [song["title"] for song, _, _ in mood_first_top]
+    assert "Crossroads Ache" not in balanced_titles  # blues song loses to pop songs
+    assert "Crossroads Ache" in mood_first_titles    # mood_first lifts the sad blues song
+
+
+def test_unknown_mode_raises_helpful_error():
+    with pytest.raises(ValueError):
+        get_scoring_mode("not_a_mode")
