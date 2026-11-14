@@ -59,3 +59,42 @@ def test_explain_recommendation_returns_non_empty_string():
     explanation = rec.explain_recommendation(user, song)
     assert isinstance(explanation, str)
     assert explanation.strip() != ""
+
+
+# ---------------------------------------------------------------------------
+# Functional interface tests
+# ---------------------------------------------------------------------------
+from src.recommender import load_songs, score_song, recommend_songs, closeness
+
+
+def test_load_songs_converts_numeric_columns():
+    songs = load_songs("data/songs.csv")
+    assert len(songs) >= 10
+    first_song = songs[0]
+    assert isinstance(first_song["id"], int)
+    assert isinstance(first_song["energy"], float)
+    assert isinstance(first_song["tempo_bpm"], float)
+
+
+def test_closeness_is_one_for_exact_match_and_never_negative():
+    assert closeness(0.5, 0.5) == 1.0
+    assert closeness(0.0, 1.5) == 0.0  # far-off values clamp to zero
+
+
+def test_score_song_returns_score_and_reasons():
+    user_prefs = {"genre": "pop", "mood": "happy", "energy": 0.8}
+    song = {"genre": "pop", "mood": "happy", "energy": 0.8, "acousticness": 0.2}
+    score, reasons = score_song(user_prefs, song)
+    assert score == 4.5  # 2.0 genre + 1.0 mood + 1.5 perfect energy
+    assert any("genre match" in reason for reason in reasons)
+    assert any("mood match" in reason for reason in reasons)
+
+
+def test_recommend_songs_is_sorted_and_limited_to_k():
+    songs = load_songs("data/songs.csv")
+    user_prefs = {"genre": "lofi", "mood": "chill", "energy": 0.4}
+    results = recommend_songs(user_prefs, songs, k=3)
+    assert len(results) == 3
+    scores = [score for _, score, _ in results]
+    assert scores == sorted(scores, reverse=True)
+    assert results[0][0]["genre"] == "lofi"

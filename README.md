@@ -152,7 +152,45 @@ pytest
 
 ## Sample Recommendation Output
 
-*(Filled in after implementation.)*
+Default "pop / happy" profile, `python -m src.main`:
+
+```
+Loaded songs: 20
+
+============================================================
+Profile: Default Pop / Happy
+Preferences: {'genre': 'pop', 'mood': 'happy', 'energy': 0.8}
+============================================================
+1. Sunrise City by Neon Echo  [pop / happy]
+   Score: 4.47
+     - genre match: pop (+2.00)
+     - mood match: happy (+1.00)
+     - energy 0.82 vs target 0.80 (+1.47)
+
+2. Gym Hero by Max Pulse  [pop / intense]
+   Score: 3.30
+     - genre match: pop (+2.00)
+     - energy 0.93 vs target 0.80 (+1.30)
+
+3. Paper Hearts by Neon Echo  [pop / sad]
+   Score: 3.02
+     - genre match: pop (+2.00)
+     - energy 0.48 vs target 0.80 (+1.02)
+
+4. Rooftop Lights by Indigo Parade  [indie pop / happy]
+   Score: 2.44
+     - mood match: happy (+1.00)
+     - energy 0.76 vs target 0.80 (+1.44)
+
+5. Concrete Verses by Block Theory  [hip hop / confident]
+   Score: 1.47
+     - energy 0.78 vs target 0.80 (+1.47)
+```
+
+*Sunrise City* at #1 makes sense: it's the only song that matches genre, mood, and energy.
+The surprise is *Paper Hearts*, a **sad** pop song, ranking above *Rooftop Lights*, a
+**happy** indie-pop song. The +2.0 genre bonus is enough to beat a mood match plus a
+near-perfect energy match. That's the genre bias I expected in the design.
 
 ---
 
