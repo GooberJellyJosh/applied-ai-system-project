@@ -98,3 +98,26 @@ def test_recommend_songs_is_sorted_and_limited_to_k():
     scores = [score for _, score, _ in results]
     assert scores == sorted(scores, reverse=True)
     assert results[0][0]["genre"] == "lofi"
+
+
+# ---------------------------------------------------------------------------
+# Advanced feature tests
+# ---------------------------------------------------------------------------
+def test_load_songs_parses_advanced_columns():
+    songs = load_songs("data/songs.csv")
+    first_song = songs[0]
+    assert isinstance(first_song["popularity"], int)
+    assert isinstance(first_song["release_decade"], int)
+    assert isinstance(first_song["mood_tags"], list)
+    assert len(first_song["mood_tags"]) > 0
+
+
+def test_mood_tags_and_decade_add_points():
+    base_prefs = {"energy": 0.5}
+    detailed_prefs = {"energy": 0.5, "mood_tags": ["nostalgic", "dreamy"], "decade": 1980}
+    song = {"genre": "synthwave", "mood": "moody", "energy": 0.5, "acousticness": 0.2,
+            "mood_tags": ["nostalgic", "nocturnal", "dreamy"], "release_decade": 1980}
+    base_score, _ = score_song(base_prefs, song)
+    detailed_score, reasons = score_song(detailed_prefs, song)
+    assert detailed_score == base_score + 1.0 + 0.5  # two tags (capped at 1.0) + decade
+    assert any("shared mood tags" in reason for reason in reasons)

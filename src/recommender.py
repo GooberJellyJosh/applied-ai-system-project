@@ -7,7 +7,7 @@ song a score, and returns the highest-scoring songs with reasons.
 """
 
 import csv
-from dataclasses import dataclass, asdict
+from dataclasses import dataclass, asdict, field
 from typing import Dict, List, Optional, Tuple
 
 # ---------------------------------------------------------------------------
@@ -18,14 +18,33 @@ MOOD_MATCH_POINTS = 1.0       # flat bonus when mood matches exactly
 ENERGY_MAX_POINTS = 1.5       # max points for a perfect energy match
 ACOUSTIC_MAX_POINTS = 0.5     # max points for matching the acoustic preference
 OPTIONAL_TARGET_POINTS = 0.5  # max points for each optional numeric target
+MOOD_TAG_POINTS = 0.5         # points for each detailed mood tag the user shares
+MOOD_TAG_MAX_POINTS = 1.0     # cap so tags can't outweigh the main mood match
+DECADE_MATCH_POINTS = 0.5     # song released in the user's favorite decade
+DECADE_NEARBY_POINTS = 0.25   # song released one decade before/after
 
-# Tempo is measured in BPM, not 0-1, so differences are divided by this
-# range to put tempo closeness on the same 0-1 scale as the other features.
+# Features that aren't on a 0-1 scale are divided by their range so every
+# closeness score lands on the same 0-1 scale.
 TEMPO_RANGE_BPM = 120.0
+POPULARITY_RANGE = 100.0
 
-# Column types used when converting CSV text into numbers
-INTEGER_COLUMNS = {"id"}
-FLOAT_COLUMNS = {"energy", "tempo_bpm", "valence", "danceability", "acousticness"}
+# Optional numeric targets: (preference key, value range)
+OPTIONAL_NUMERIC_FEATURES = [
+    ("valence", 1.0),
+    ("danceability", 1.0),
+    ("tempo_bpm", TEMPO_RANGE_BPM),
+    ("popularity", POPULARITY_RANGE),
+    ("instrumentalness", 1.0),
+    ("speechiness", 1.0),
+]
+
+# Column types used when converting CSV text into Python values
+INTEGER_COLUMNS = {"id", "popularity", "release_decade"}
+FLOAT_COLUMNS = {
+    "energy", "tempo_bpm", "valence", "danceability", "acousticness",
+    "instrumentalness", "speechiness",
+}
+LIST_COLUMNS = {"mood_tags"}  # stored in the CSV as "tag1;tag2;tag3"
 
 
 # ---------------------------------------------------------------------------
@@ -44,6 +63,12 @@ class Song:
     valence: float
     danceability: float
     acousticness: float
+    # Advanced attributes (optional so older song data still works)
+    popularity: Optional[int] = None          # 0-100
+    release_decade: Optional[int] = None      # e.g. 1980, 2020
+    mood_tags: List[str] = field(default_factory=list)  # e.g. ["nostalgic", "dreamy"]
+    instrumentalness: Optional[float] = None  # 0-1, higher = fewer vocals
+    speechiness: Optional[float] = None       # 0-1, higher = more spoken word / rap
 
 
 @dataclass
@@ -56,6 +81,11 @@ class UserProfile:
     target_valence: Optional[float] = None
     target_danceability: Optional[float] = None
     target_tempo_bpm: Optional[float] = None
+    target_popularity: Optional[float] = None
+    target_instrumentalness: Optional[float] = None
+    target_speechiness: Optional[float] = None
+    preferred_mood_tags: List[str] = field(default_factory=list)
+    preferred_decade: Optional[int] = None
 
     def to_prefs(self) -> Dict:
         """Convert this profile into the preference dictionary used by score_song."""
@@ -70,10 +100,16 @@ class UserProfile:
             "valence": self.target_valence,
             "danceability": self.target_danceability,
             "tempo_bpm": self.target_tempo_bpm,
+            "popularity": self.target_popularity,
+            "instrumentalness": self.target_instrumentalness,
+            "speechiness": self.target_speechiness,
+            "decade": self.preferred_decade,
         }
         for feature_name, target_value in optional_targets.items():
             if target_value is not None:
                 prefs[feature_name] = target_value
+        if self.preferred_mood_tags:
+            prefs["mood_tags"] = list(self.preferred_mood_tags)
         return prefs
 
 
@@ -114,6 +150,8 @@ def load_songs(csv_path: str) -> List[Dict]:
                     song[column_name] = int(raw_value)
                 elif column_name in FLOAT_COLUMNS:
                     song[column_name] = float(raw_value)
+                elif column_name in LIST_COLUMNS:
+                    song[column_name] = [tag.strip() for tag in raw_value.split(";") if tag.strip()]
                 else:
                     song[column_name] = raw_value.strip()
             songs.append(song)
@@ -161,21 +199,37 @@ def score_song(user_prefs: Dict, song: Dict) -> Tuple[float, List[str]]:
         label = "acoustic" if likes_acoustic else "non-acoustic"
         reasons.append(f"{label} preference (+{acoustic_points:.2f})")
 
-    # 5. Optional numeric targets (only scored when the user provides them)
-    optional_features = [
-        ("valence", 1.0),
-        ("danceability", 1.0),
-        ("tempo_bpm", TEMPO_RANGE_BPM),
-    ]
-    for feature_name, value_range in optional_features:
+    # 5. Optional numeric targets (only scored when the user provides them
+    #    and the song actually has that attribute)
+    for feature_name, value_range in OPTIONAL_NUMERIC_FEATURES:
         target_value = user_prefs.get(feature_name)
-        if target_value is None:
+        song_value = song.get(feature_name)
+        if target_value is None or song_value is None:
             continue
-        feature_points = OPTIONAL_TARGET_POINTS * closeness(
-            song[feature_name], target_value, value_range
-        )
+        feature_points = OPTIONAL_TARGET_POINTS * closeness(song_value, target_value, value_range)
         total_score += feature_points
         reasons.append(f"{feature_name} close to target (+{feature_points:.2f})")
+
+    # 6. Detailed mood tags: points for each shared tag, capped
+    preferred_tags = {tag.lower() for tag in user_prefs.get("mood_tags", [])}
+    song_tags = {tag.lower() for tag in song.get("mood_tags", [])}
+    shared_tags = sorted(preferred_tags & song_tags)
+    if shared_tags:
+        tag_points = min(MOOD_TAG_POINTS * len(shared_tags), MOOD_TAG_MAX_POINTS)
+        total_score += tag_points
+        reasons.append(f"shared mood tags: {', '.join(shared_tags)} (+{tag_points:.2f})")
+
+    # 7. Release decade: full points for the same decade, partial for a neighbor
+    preferred_decade = user_prefs.get("decade")
+    song_decade = song.get("release_decade")
+    if preferred_decade is not None and song_decade is not None:
+        decade_gap = abs(song_decade - preferred_decade)
+        if decade_gap == 0:
+            total_score += DECADE_MATCH_POINTS
+            reasons.append(f"from the {song_decade}s (+{DECADE_MATCH_POINTS:.2f})")
+        elif decade_gap == 10:
+            total_score += DECADE_NEARBY_POINTS
+            reasons.append(f"close era: {song_decade}s (+{DECADE_NEARBY_POINTS:.2f})")
 
     return round(total_score, 2), reasons
 
