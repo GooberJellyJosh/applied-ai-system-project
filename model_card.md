@@ -225,6 +225,15 @@ That's when I understood that a recommender's behavior lives in its weights and 
 only in its code, and that testing with strange profiles finds problems that normal
 profiles hide.
 
+**How AI tools helped, and when I double-checked them:** An AI coding assistant sped up the
+repetitive parts: the CSV loader, the table formatter, extra songs for the dataset, and
+first drafts of the docs. It also helped me think through the scoring-mode design. I still
+had to check its work against the real output. One of its tests assumed the diversity
+penalty would add more genres to the lofi list, and it didn't, so the test was wrong, not
+the code. Its draft write-up also miscounted the catalog (it said 12 single-song genres
+when there are 14, and five high-energy songs when there are four). The lesson: treat AI
+output like a teammate's first draft and verify every number against the data.
+
 **How simple algorithms can still "feel" like recommendations:** The whole system is
 addition and sorting, yet the Chill Lofi list looked like a real study playlist, and the
 night owl list connected a lofi track, a country song, and a jazz song through shared
