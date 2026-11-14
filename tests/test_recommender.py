@@ -181,3 +181,17 @@ def test_diversity_penalty_is_explained():
     diverse = recommend_songs(user_prefs, songs, k=5, diversity=True)
     all_reasons = " ".join(explanation for _, _, explanation in diverse)
     assert "diversity:" in all_reasons
+
+
+# ---------------------------------------------------------------------------
+# Table formatting tests
+# ---------------------------------------------------------------------------
+from src.table_format import format_table
+
+
+def test_format_table_handles_multiline_cells():
+    table = format_table(["#", "Why"], [["1", "- genre match\n- mood match"]])
+    lines = table.split("\n")
+    assert "genre match" in table and "mood match" in table
+    # Every line of the table has the same width
+    assert len({len(line) for line in lines}) == 1

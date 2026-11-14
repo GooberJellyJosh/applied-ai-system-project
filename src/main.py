@@ -9,6 +9,7 @@ Run from the project root with:
 import argparse
 
 from src.recommender import SCORING_MODES, get_scoring_mode, load_songs, recommend_songs
+from src.table_format import format_table
 
 SONGS_CSV_PATH = "data/songs.csv"
 TOP_K = 5
@@ -35,18 +36,19 @@ def parse_arguments() -> argparse.Namespace:
 def print_recommendations(
     profile_name: str, user_prefs: dict, mode_name: str, recommendations: list
 ) -> None:
-    """Print a readable block showing each recommended song, its score, and its reasons."""
-    print("=" * 60)
+    """Print a summary table showing each recommended song, its score, and its reasons."""
     print(f"Profile: {profile_name}   |   Mode: {mode_name}")
     print(f"Preferences: {user_prefs}")
-    print("=" * 60)
+
+    table_rows = []
     for rank, (song, score, explanation) in enumerate(recommendations, start=1):
-        print(f"{rank}. {song['title']} by {song['artist']}  [{song['genre']} / {song['mood']}]")
-        print(f"   Score: {score:.2f}")
-        # Each reason goes on its own line so it's easy to read
-        for reason in explanation.split("; "):
-            print(f"     - {reason}")
-        print()
+        song_cell = f"{song['title']}\n{song['artist']}\n{song['genre']} / {song['mood']}"
+        # Each reason goes on its own line inside the "Why" column
+        reasons_cell = "\n".join(f"- {reason}" for reason in explanation.split("; ") if reason)
+        table_rows.append([str(rank), song_cell, f"{score:.2f}", reasons_cell or "- no matches"])
+
+    print(format_table(["#", "Song", "Score", "Why"], table_rows, max_widths=[2, 24, 5, 52]))
+    print()
 
 
 def main() -> None:
