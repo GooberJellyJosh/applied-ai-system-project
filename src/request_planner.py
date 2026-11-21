@@ -173,7 +173,7 @@ def find_guide_mentions(request_text: str, knowledge_base: KnowledgeBase) -> Lis
 def _mark_negated_mentions(
     lowered_request: str, mentions: List[GuideMention], is_character_claimed: List[bool]
 ) -> None:
-    """Set is_negated on genre and mood mentions that follow a word like "not" or "no"."""
+    """Set is_negated on mentions that follow a word like "not" or "no"."""
     # Hide every matched phrase behind "|" so a phrase such as "no lyrics"
     # cannot be mistaken for a negation of the mention that follows it.
     masked_request = "".join(
@@ -183,21 +183,20 @@ def _mark_negated_mentions(
 
     previous_mention: Optional[GuideMention] = None
     for mention in mentions:
-        if mention.document.doc_type in (GENRE_TYPE, MOOD_TYPE):
-            # Only look at the words in the same clause, right before the mention
-            text_before_mention = masked_request[: mention.start_position]
-            current_clause = CLAUSE_BOUNDARY_PATTERN.split(text_before_mention)[-1]
-            words_before_mention = current_clause.split()[-NEGATION_WINDOW_WORDS:]
+        # Only look at the words in the same clause, right before the mention
+        text_before_mention = masked_request[: mention.start_position]
+        current_clause = CLAUSE_BOUNDARY_PATTERN.split(text_before_mention)[-1]
+        words_before_mention = current_clause.split()[-NEGATION_WINDOW_WORDS:]
 
-            if any(word in NEGATION_WORDS for word in words_before_mention):
+        if any(word in NEGATION_WORDS for word in words_before_mention):
+            mention.is_negated = True
+        elif "but" in words_before_mention and "anything" in lowered_request[: mention.start_position]:
+            mention.is_negated = True  # "anything but country"
+        elif previous_mention is not None and previous_mention.is_negated:
+            # "no country or metal": the negation carries across "or"
+            text_between = lowered_request[previous_mention.end_position: mention.start_position]
+            if text_between.strip(" ,") in NEGATION_CONNECTORS:
                 mention.is_negated = True
-            elif "but" in words_before_mention and "anything" in lowered_request[: mention.start_position]:
-                mention.is_negated = True  # "anything but country"
-            elif previous_mention is not None and previous_mention.is_negated:
-                # "no country or metal": the negation carries across "or"
-                text_between = lowered_request[previous_mention.end_position: mention.start_position]
-                if text_between.strip(" ,") in NEGATION_CONNECTORS:
-                    mention.is_negated = True
         previous_mention = mention
 
 
@@ -295,10 +294,14 @@ def build_request_plan(
             continue
         if mention.document.doc_type == GENRE_TYPE:
             plan.excluded_genres.append(mention.document.name)
-        else:
+            plan.notes.append(f"Excluding genre \"{mention.document.name}\" (the request rules it out).")
+        elif mention.document.doc_type == MOOD_TYPE:
             plan.excluded_moods.append(mention.document.name)
-        plan.notes.append(f"Excluding {mention.document.doc_type} \"{mention.document.name}\" "
-                          f"(the request says not to include it).")
+            plan.notes.append(f"Excluding mood \"{mention.document.name}\" (the request rules it out).")
+        else:
+            # "not too loud" or "not for the gym": the guide is not applied, and
+            # the assistant does not try to guess the opposite
+            plan.notes.append(f"Ignoring the \"{mention.document.name}\" guide (the request rules it out).")
 
     def set_preference(preference_name: str, value: Any, document: KnowledgeDocument, how_found: str) -> None:
         """Store a preference and remember which document it came from (later calls override)."""

@@ -98,6 +98,14 @@ def test_no_lyrics_does_not_negate_the_next_word(knowledge_base, retriever, song
     assert plan.excluded_moods == []
 
 
+def test_negated_sound_trait_is_ignored_not_applied(knowledge_base, retriever, songs):
+    plan = make_plan("jazz, not too loud", knowledge_base, retriever, songs)
+
+    # "loud" maps to high energy; when negated it must not raise the target
+    assert plan.preferences["energy"] == 0.37  # the typical energy of jazz
+    assert plan.excluded_moods == []
+
+
 def test_ruled_out_words_do_not_feed_the_search(knowledge_base, retriever, songs):
     plan = make_plan("not pop", knowledge_base, retriever, songs)
 
