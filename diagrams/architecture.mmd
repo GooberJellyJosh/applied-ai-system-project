@@ -1,0 +1,58 @@
+%% VibeFinder 2.0 system architecture
+%% Paste this file into https://mermaid.live to preview it, or view the copy
+%% embedded in README.md, which GitHub renders automatically.
+flowchart TD
+    listener(["Listener types a plain-language request"])
+    cli["Command line app<br/>src/main.py (--ask, --chat)"]
+
+    subgraph pipeline ["Assistant pipeline: src/assistant.py"]
+        guardrail{"1. Input guardrail<br/>guardrails.py"}
+        retriever["2. Retriever (TF-IDF + cosine similarity)<br/>retriever.py"]
+        planner["3. Request planner<br/>request_planner.py"]
+        ranker["4. Knowledge-aware ranker<br/>knowledge_ranker.py + recommender.py"]
+        selfcheck{"5. Self-check<br/>self_check.py"}
+        confidence["6. Confidence score (0 to 1)<br/>self_check.py"]
+        writer["7. Response writer<br/>template, or optional language model"]
+        summarycheck{"Summary check<br/>self_check.py"}
+    end
+
+    subgraph knowledge ["Knowledge base: src/knowledge_base.py"]
+        songs[("data/songs.csv<br/>20 song documents")]
+        guides[("data/knowledge/*.json<br/>genre, mood, activity,<br/>and sound-trait guides")]
+    end
+
+    rejected(["Clear message: request rejected"])
+    declined(["Clear message: declines to guess"])
+    answer(["Answer: ranked songs, reasons, sources,<br/>confidence, warnings, optional trace"])
+    logfile[("logs/vibefinder.log")]
+
+    subgraph review ["Testing and human review"]
+        unittests["Automated tests<br/>pytest, tests/"]
+        harness["Evaluation harness<br/>src/evaluate.py + data/evaluation_cases.json"]
+        human["Human reviewer<br/>reads the report, trace, and log,<br/>then edits guides, weights, or cases"]
+    end
+
+    listener --> cli --> guardrail
+    guardrail -- "empty, too long, or no words" --> rejected
+    guardrail -- "accepted" --> retriever
+    songs --> retriever
+    guides --> retriever
+    retriever -- "matching documents + similarity" --> planner
+    planner -- "nothing relevant retrieved" --> declined
+    planner -- "preferences, scoring mode, evidence" --> ranker
+    songs --> ranker
+    ranker -- "ranked songs with reasons and sources" --> selfcheck
+    selfcheck -- "a check failed: revise the plan once" --> planner
+    selfcheck -- "checks done" --> confidence
+    confidence --> writer
+    writer --> summarycheck
+    summarycheck -- "language model draft rejected:<br/>retry once, then use the template" --> writer
+    summarycheck -- "verified" --> answer
+
+    pipeline -. "every step is logged" .-> logfile
+    unittests -. "verify each component" .-> pipeline
+    harness -. "30 cases: accuracy, consistency,<br/>confidence, baseline" .-> pipeline
+    harness --> human
+    answer --> human
+    logfile --> human
+    human -. "improves" .-> guides
