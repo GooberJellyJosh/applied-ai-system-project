@@ -1,6 +1,6 @@
 """Tests for the knowledge-aware ranking step."""
 
-from src.knowledge_ranker import rank_songs_with_knowledge
+from src.knowledge_ranker import RELATED_MATCH_SHARES, rank_songs_with_knowledge, related_match_share
 from src.request_planner import RequestPlan, build_request_plan
 
 
@@ -81,3 +81,16 @@ def test_named_genre_keeps_its_own_songs_on_top(knowledge_base, retriever, songs
     ranked_songs = rank_request("lofi", knowledge_base, retriever, songs, result_count=3)
 
     assert [result.song["genre"] for result in ranked_songs] == ["lofi", "lofi", "lofi"]
+
+
+def test_closer_related_moods_earn_more_credit(knowledge_base, retriever, songs):
+    ranked_songs = rank_request("sad songs", knowledge_base, retriever, songs)
+
+    # The sad guide lists melancholy before nostalgic, so the melancholy song
+    # should rank above the nostalgic one once the two sad songs are placed.
+    assert [result.song["mood"] for result in ranked_songs[:3]] == ["sad", "sad", "melancholy"]
+
+
+def test_related_match_share_shrinks_and_then_levels_off():
+    assert related_match_share(0) > related_match_share(1) > related_match_share(2)
+    assert related_match_share(10) == RELATED_MATCH_SHARES[-1]

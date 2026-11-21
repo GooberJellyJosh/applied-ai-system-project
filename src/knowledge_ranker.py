@@ -25,8 +25,10 @@ from src.request_planner import RequestPlan
 
 logger = get_logger("ranker")
 
-# A related genre or similar mood earns this share of the full match points
-RELATED_MATCH_SHARE = 0.5
+# Guides list related genres and similar moods closest first. The closest one
+# earns the largest share of the full match points and later ones earn less,
+# so "melancholy" counts for more than "nostalgic" when the request says "sad".
+RELATED_MATCH_SHARES = (0.6, 0.45, 0.3)
 
 # Wording bonus = similarity x scale, capped so it can never outweigh a genre match
 WORDING_BONUS_SCALE = 3.0
@@ -52,6 +54,12 @@ def _related_names(knowledge_base: KnowledgeBase, doc_id: str, metadata_key: str
     return list(guide_document.metadata.get(metadata_key, []))
 
 
+def related_match_share(position_in_guide: int) -> float:
+    """Return the share of full points for the Nth related genre or similar mood (0 = closest)."""
+    last_position = len(RELATED_MATCH_SHARES) - 1
+    return RELATED_MATCH_SHARES[min(position_in_guide, last_position)]
+
+
 def score_song_with_knowledge(
     plan: RequestPlan, song: Dict, knowledge_base: KnowledgeBase
 ) -> Tuple[float, List[str], List[str]]:
@@ -67,7 +75,8 @@ def score_song_with_knowledge(
     if requested_genre and song["genre"].lower() != requested_genre.lower():
         related_genres = _related_names(knowledge_base, f"genre:{requested_genre}", "similar_genres")
         if song["genre"] in related_genres:
-            related_genre_points = round(scoring_mode.genre_points * RELATED_MATCH_SHARE, 2)
+            share = related_match_share(related_genres.index(song["genre"]))
+            related_genre_points = round(scoring_mode.genre_points * share, 2)
             total_score += related_genre_points
             reasons.append(
                 f"related genre: {song['genre']} is close to {requested_genre} (+{related_genre_points:.2f})"
@@ -81,7 +90,8 @@ def score_song_with_knowledge(
     if requested_mood and song["mood"].lower() != requested_mood.lower():
         similar_moods = _related_names(knowledge_base, f"mood:{requested_mood}", "similar_moods")
         if song["mood"] in similar_moods:
-            similar_mood_points = round(scoring_mode.mood_points * RELATED_MATCH_SHARE, 2)
+            share = related_match_share(similar_moods.index(song["mood"]))
+            similar_mood_points = round(scoring_mode.mood_points * share, 2)
             total_score += similar_mood_points
             reasons.append(
                 f"similar mood: {song['mood']} is close to {requested_mood} (+{similar_mood_points:.2f})"
