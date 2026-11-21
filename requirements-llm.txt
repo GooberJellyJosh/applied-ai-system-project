@@ -1,0 +1,3 @@
+# Optional: only needed for the --llm flag, which asks a Claude model to
+# phrase the explanation. The app runs fully without it.
+anthropic
