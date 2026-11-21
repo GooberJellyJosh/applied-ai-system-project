@@ -1,0 +1,156 @@
+[
+  {
+    "name": "pop",
+    "aliases": ["pop music"],
+    "description": "Catchy, polished, radio-friendly songs with big hooks, bright production and sing-along choruses. Mainstream chart hits that fit almost any setting.",
+    "typical_energy": 0.74,
+    "similar_genres": ["indie pop", "edm", "r&b"]
+  },
+  {
+    "name": "lofi",
+    "aliases": ["lo-fi", "lo fi", "lofi beats", "lo-fi beats"],
+    "description": "Mellow instrumental beats with soft drums, vinyl crackle and warm keys. Low-key background music for studying, reading, coding and late nights.",
+    "typical_energy": 0.39,
+    "similar_genres": ["ambient", "jazz", "classical"]
+  },
+  {
+    "name": "rock",
+    "aliases": ["rock music", "rock and roll"],
+    "description": "Loud electric guitars, driving drums and powerful vocals. Raw, high-energy band music with attitude.",
+    "typical_energy": 0.91,
+    "similar_genres": ["metal", "indie pop", "blues"]
+  },
+  {
+    "name": "ambient",
+    "aliases": ["ambient music"],
+    "description": "Slow, spacious, atmospheric soundscapes with almost no beat or vocals. Floating textures for sleep, meditation, deep calm and quiet thinking.",
+    "typical_energy": 0.28,
+    "similar_genres": ["lofi", "classical"]
+  },
+  {
+    "name": "jazz",
+    "aliases": ["jazz music"],
+    "description": "Warm acoustic instruments such as piano, saxophone, upright bass and brushed drums, with swing and improvisation. Smooth, sophisticated music for cafes, dinners and evenings.",
+    "typical_energy": 0.37,
+    "similar_genres": ["blues", "lofi", "r&b"]
+  },
+  {
+    "name": "synthwave",
+    "aliases": ["retrowave", "synth wave"],
+    "description": "Retro 1980s-inspired electronic music with glowing synthesizers, pulsing bass and a neon night-drive atmosphere.",
+    "typical_energy": 0.75,
+    "similar_genres": ["edm", "pop", "ambient"]
+  },
+  {
+    "name": "indie pop",
+    "aliases": ["indie"],
+    "description": "Bright, quirky, melodic pop from independent artists with jangly guitars and a lighter, less polished feel than mainstream pop.",
+    "typical_energy": 0.76,
+    "similar_genres": ["pop", "folk", "rock"]
+  },
+  {
+    "name": "hip hop",
+    "aliases": ["hip-hop", "hiphop", "rap"],
+    "description": "Rhythmic spoken verses and rhymes over heavy beats and bass. Lyrical flow, swagger and street storytelling.",
+    "typical_energy": 0.78,
+    "similar_genres": ["r&b", "pop", "edm"]
+  },
+  {
+    "name": "classical",
+    "aliases": ["classical music", "orchestral"],
+    "description": "Orchestral and piano compositions with strings, symphonies and sonatas. Elegant, timeless instrumental music for concentration and quiet reflection.",
+    "typical_energy": 0.22,
+    "similar_genres": ["ambient", "jazz", "lofi"]
+  },
+  {
+    "name": "metal",
+    "aliases": ["heavy metal"],
+    "description": "Extremely heavy distorted guitars, pounding double-bass drums and fierce vocals. Dark, fast, aggressive and loud.",
+    "typical_energy": 0.97,
+    "similar_genres": ["rock"]
+  },
+  {
+    "name": "country",
+    "aliases": ["country music"],
+    "description": "Storytelling songs with acoustic guitar, fiddle and twang about home, small towns, open roads and heartache.",
+    "typical_energy": 0.55,
+    "similar_genres": ["folk", "blues", "rock"]
+  },
+  {
+    "name": "r&b",
+    "aliases": ["rnb", "r and b", "rhythm and blues"],
+    "description": "Smooth soulful vocals over slow grooves and silky production. Sensual, romantic music about love and relationships.",
+    "typical_energy": 0.58,
+    "similar_genres": ["hip hop", "jazz", "pop"]
+  },
+  {
+    "name": "edm",
+    "aliases": ["electronic dance music", "electronic", "dance music"],
+    "description": "Electronic dance music with pounding four-on-the-floor beats, big drops and festival energy for clubs, raves and parties.",
+    "typical_energy": 0.95,
+    "similar_genres": ["synthwave", "pop", "hip hop"]
+  },
+  {
+    "name": "folk",
+    "aliases": ["folk music"],
+    "description": "Gentle acoustic songs with fingerpicked guitar, soft vocals and traditional storytelling. Intimate, earthy and often wistful.",
+    "typical_energy": 0.30,
+    "similar_genres": ["country", "blues", "indie pop"]
+  },
+  {
+    "name": "reggae",
+    "aliases": ["reggae music"],
+    "description": "Laid-back offbeat rhythms, deep bass and sunny island grooves from Jamaica. Easygoing beach and summer music.",
+    "typical_energy": 0.52,
+    "similar_genres": ["r&b", "hip hop", "pop"]
+  },
+  {
+    "name": "blues",
+    "aliases": ["the blues"],
+    "description": "Slow soulful guitar, harmonica and aching vocals about hardship, loss and heartbreak. Gritty and emotional.",
+    "typical_energy": 0.45,
+    "similar_genres": ["jazz", "country", "rock"]
+  },
+  {
+    "name": "k-pop",
+    "aliases": ["kpop", "k pop", "korean pop"],
+    "description": "Korean pop music with glossy production, choreographed dance tracks and catchy group hooks.",
+    "typical_energy": 0.80,
+    "similar_genres": ["pop", "indie pop", "edm"]
+  },
+  {
+    "name": "punk",
+    "aliases": ["punk rock"],
+    "description": "Fast, short, loud, rebellious guitar songs with shouted vocals and raw energy.",
+    "typical_energy": 0.92,
+    "similar_genres": ["rock", "metal"]
+  },
+  {
+    "name": "house",
+    "aliases": ["house music", "techno", "trance"],
+    "description": "Steady four-on-the-floor club beats with hypnotic synth loops built for long dancing sessions.",
+    "typical_energy": 0.90,
+    "similar_genres": ["edm", "synthwave"]
+  },
+  {
+    "name": "soul",
+    "aliases": ["soul music", "motown"],
+    "description": "Passionate gospel-rooted vocals with warm horns and deep feeling.",
+    "typical_energy": 0.55,
+    "similar_genres": ["r&b", "blues", "jazz"]
+  },
+  {
+    "name": "latin",
+    "aliases": ["latin music", "reggaeton", "salsa"],
+    "description": "Spanish-language dance rhythms with percussion, brass and tropical heat.",
+    "typical_energy": 0.80,
+    "similar_genres": ["reggae", "pop", "edm"]
+  },
+  {
+    "name": "disco",
+    "aliases": ["disco music"],
+    "description": "Funky 1970s dance-floor grooves with strings, four-on-the-floor drums and glittering energy.",
+    "typical_energy": 0.82,
+    "similar_genres": ["edm", "pop", "synthwave"]
+  }
+]

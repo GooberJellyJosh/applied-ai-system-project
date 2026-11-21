@@ -1,0 +1,62 @@
+[
+  {
+    "name": "instrumental",
+    "aliases": ["instrumental", "instrumentals", "no lyrics", "no vocals", "no words", "without lyrics", "without vocals", "without words", "wordless"],
+    "description": "Music with no singing or spoken words, only instruments.",
+    "suggested_preferences": {"instrumentalness": 0.9}
+  },
+  {
+    "name": "acoustic",
+    "aliases": ["acoustic", "unplugged", "stripped back", "stripped-back"],
+    "description": "Natural, unamplified instruments such as acoustic guitar and piano instead of electronic production.",
+    "suggested_preferences": {"likes_acoustic": true}
+  },
+  {
+    "name": "high energy",
+    "aliases": ["high energy", "high-energy", "energetic", "upbeat", "loud", "pumped up", "pump up"],
+    "description": "Loud, lively, powerful tracks with a lot of drive.",
+    "suggested_preferences": {"energy": 0.9}
+  },
+  {
+    "name": "low energy",
+    "aliases": ["low energy", "low-energy", "quiet", "soft", "gentle"],
+    "description": "Soft, quiet, understated tracks that stay in the background.",
+    "suggested_preferences": {"energy": 0.28}
+  },
+  {
+    "name": "fast tempo",
+    "aliases": ["fast", "fast paced", "fast-paced", "uptempo", "up-tempo"],
+    "description": "Quick beats per minute that keep things moving.",
+    "suggested_preferences": {"tempo_bpm": 140}
+  },
+  {
+    "name": "slow tempo",
+    "aliases": ["slow", "slow paced", "slow-paced", "downtempo"],
+    "description": "Unhurried beats per minute with plenty of space.",
+    "suggested_preferences": {"tempo_bpm": 70}
+  },
+  {
+    "name": "danceable",
+    "aliases": ["danceable", "groovy", "to dance to", "dance to"],
+    "description": "A strong, steady groove that is easy to move to.",
+    "suggested_preferences": {"danceability": 0.88}
+  },
+  {
+    "name": "popular",
+    "aliases": ["popular", "mainstream", "chart", "well known", "well-known", "hits"],
+    "description": "Widely played songs that most listeners already know.",
+    "suggested_preferences": {"popularity": 85}
+  },
+  {
+    "name": "underground",
+    "aliases": ["underground", "obscure", "hidden gem", "hidden gems", "lesser known", "lesser-known"],
+    "description": "Less-played songs that few listeners have discovered.",
+    "suggested_preferences": {"popularity": 38}
+  },
+  {
+    "name": "lyrical",
+    "aliases": ["lyrical", "wordy", "spoken word", "strong lyrics"],
+    "description": "Songs where spoken or rapped words carry the track.",
+    "suggested_preferences": {"speechiness": 0.35}
+  }
+]

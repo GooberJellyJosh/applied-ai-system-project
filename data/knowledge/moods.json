@@ -1,0 +1,100 @@
+[
+  {
+    "name": "chill",
+    "aliases": ["chilled", "mellow", "laid back", "laid-back", "easygoing"],
+    "description": "Calm, unhurried, low-pressure music to unwind with. Soft, smooth and easy on the ears.",
+    "typical_energy": 0.35,
+    "similar_moods": ["relaxed", "peaceful", "focused"]
+  },
+  {
+    "name": "happy",
+    "aliases": ["cheerful", "joyful", "feel good", "feel-good"],
+    "description": "Bright, sunny, positive songs that lift your spirits and make you smile.",
+    "typical_energy": 0.79,
+    "similar_moods": ["euphoric", "confident", "relaxed"]
+  },
+  {
+    "name": "intense",
+    "aliases": ["hard hitting", "hard-hitting", "powerful"],
+    "description": "Forceful, driving, adrenaline-pumping music that pushes you to go harder.",
+    "typical_energy": 0.92,
+    "similar_moods": ["aggressive", "euphoric", "confident"]
+  },
+  {
+    "name": "relaxed",
+    "aliases": ["relaxing", "easy listening", "soothing"],
+    "description": "Warm, comfortable, gentle songs for slowing down, resting and taking it easy.",
+    "typical_energy": 0.45,
+    "similar_moods": ["chill", "peaceful", "happy"]
+  },
+  {
+    "name": "sad",
+    "aliases": ["unhappy", "heartbroken", "gloomy", "sorrowful"],
+    "description": "Sorrowful, tearful songs about loss, heartbreak, loneliness and crying it out.",
+    "typical_energy": 0.47,
+    "similar_moods": ["melancholy", "moody", "nostalgic"]
+  },
+  {
+    "name": "moody",
+    "aliases": ["brooding", "atmospheric"],
+    "description": "Dark-tinted, mysterious, late-night atmosphere with a brooding, cinematic feel.",
+    "typical_energy": 0.75,
+    "similar_moods": ["melancholy", "nostalgic", "sad"]
+  },
+  {
+    "name": "focused",
+    "aliases": ["focus", "concentration", "productive"],
+    "description": "Steady, distraction-free music that keeps your mind on the task at hand.",
+    "typical_energy": 0.40,
+    "similar_moods": ["chill", "peaceful", "relaxed"]
+  },
+  {
+    "name": "confident",
+    "aliases": ["bold", "empowering", "empowered"],
+    "description": "Bold, self-assured tracks with swagger that make you feel unstoppable.",
+    "typical_energy": 0.78,
+    "similar_moods": ["intense", "happy", "euphoric"]
+  },
+  {
+    "name": "peaceful",
+    "aliases": ["serene", "tranquil", "calm", "calming"],
+    "description": "Still, serene, tranquil music for quiet moments, meditation and rest.",
+    "typical_energy": 0.22,
+    "similar_moods": ["chill", "relaxed", "focused"]
+  },
+  {
+    "name": "aggressive",
+    "aliases": ["angry", "furious", "rage"],
+    "description": "Angry, fierce, pounding music for letting out rage and frustration.",
+    "typical_energy": 0.97,
+    "similar_moods": ["intense", "moody"]
+  },
+  {
+    "name": "nostalgic",
+    "aliases": ["nostalgia", "throwback", "wistful"],
+    "description": "Wistful, bittersweet songs that bring back old memories and simpler times.",
+    "typical_energy": 0.55,
+    "similar_moods": ["melancholy", "romantic", "moody"]
+  },
+  {
+    "name": "romantic",
+    "aliases": ["love songs", "love song", "sensual"],
+    "description": "Tender, intimate love songs for date nights, slow dances and someone special.",
+    "typical_energy": 0.58,
+    "similar_moods": ["nostalgic", "relaxed", "chill"]
+  },
+  {
+    "name": "euphoric",
+    "aliases": ["ecstatic", "hype", "hyped", "exhilarating"],
+    "description": "Ecstatic, hands-in-the-air peaks of pure joy and release.",
+    "typical_energy": 0.95,
+    "similar_moods": ["happy", "intense", "confident"]
+  },
+  {
+    "name": "melancholy",
+    "aliases": ["melancholic", "bittersweet", "somber"],
+    "description": "Quietly sad, reflective, rainy-day songs full of longing.",
+    "typical_energy": 0.30,
+    "similar_moods": ["sad", "nostalgic", "moody"]
+  }
+]

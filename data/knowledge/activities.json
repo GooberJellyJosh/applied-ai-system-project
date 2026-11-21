@@ -1,0 +1,86 @@
+[
+  {
+    "name": "studying",
+    "aliases": ["study", "studying", "homework", "reading", "exam", "revision"],
+    "description": "Long quiet sessions of reading, homework and exam revision that need steady background music without distracting lyrics.",
+    "suggested_preferences": {"mood": "focused", "energy": 0.35, "instrumentalness": 0.85, "likes_acoustic": true}
+  },
+  {
+    "name": "coding",
+    "aliases": ["coding", "programming", "deep work", "office work", "writing"],
+    "description": "Hours of concentrated computer work where a steady, repetitive beat helps you stay in the zone.",
+    "suggested_preferences": {"mood": "focused", "energy": 0.42, "instrumentalness": 0.85}
+  },
+  {
+    "name": "workout",
+    "aliases": ["workout", "working out", "gym", "running", "exercise", "lifting", "cardio", "training", "jogging"],
+    "description": "High-intensity exercise such as lifting weights, sprinting or cardio that needs fast, loud, motivating tracks to keep you pushing.",
+    "suggested_preferences": {"mood": "intense", "energy": 0.93, "tempo_bpm": 135, "danceability": 0.8, "likes_acoustic": false}
+  },
+  {
+    "name": "sleep",
+    "aliases": ["sleep", "sleeping", "bedtime", "falling asleep", "nap", "insomnia"],
+    "description": "Winding down in bed and drifting off, which calls for very slow, very quiet music with no sudden changes.",
+    "suggested_preferences": {"mood": "peaceful", "energy": 0.22, "tempo_bpm": 62, "instrumentalness": 0.9, "likes_acoustic": true}
+  },
+  {
+    "name": "party",
+    "aliases": ["party", "partying", "dancing", "club", "celebration", "pregame"],
+    "description": "A crowded room, a dance floor and friends celebrating, where everyone wants loud, danceable, feel-good anthems.",
+    "suggested_preferences": {"mood": "euphoric", "energy": 0.9, "danceability": 0.9, "likes_acoustic": false}
+  },
+  {
+    "name": "driving",
+    "aliases": ["driving", "drive", "road trip", "commute", "highway", "cruising"],
+    "description": "Time behind the wheel on a commute, highway or road trip, with steady mid-tempo songs that keep you alert without being frantic.",
+    "suggested_preferences": {"energy": 0.7, "tempo_bpm": 110}
+  },
+  {
+    "name": "unwinding",
+    "aliases": ["unwind", "unwinding", "winding down", "after work", "lazy sunday", "taking a bath"],
+    "description": "Slowing down after a long day, resting on the couch and letting stress go with warm, gentle songs.",
+    "suggested_preferences": {"mood": "relaxed", "energy": 0.38, "likes_acoustic": true}
+  },
+  {
+    "name": "dinner",
+    "aliases": ["dinner", "cooking", "dinner party", "brunch", "cafe", "coffee shop"],
+    "description": "Cooking and sharing a meal with conversation, where tasteful, warm background music should never overpower the talking.",
+    "suggested_preferences": {"mood": "relaxed", "energy": 0.42, "likes_acoustic": true}
+  },
+  {
+    "name": "date night",
+    "aliases": ["date", "date night", "romantic evening", "anniversary"],
+    "description": "An intimate evening with someone special that suits smooth, tender, slow-dance music.",
+    "suggested_preferences": {"mood": "romantic", "energy": 0.55}
+  },
+  {
+    "name": "rainy day",
+    "aliases": ["rainy", "rain", "rainy day", "cloudy", "stormy weather"],
+    "description": "Grey skies and rain on the window, a time for reflective, soft, slightly sad songs indoors.",
+    "suggested_preferences": {"mood": "melancholy", "energy": 0.35, "likes_acoustic": true}
+  },
+  {
+    "name": "morning",
+    "aliases": ["morning", "wake up", "waking up", "sunrise", "start the day"],
+    "description": "Getting out of bed and starting the day with bright, positive songs that build energy.",
+    "suggested_preferences": {"mood": "happy", "energy": 0.72, "valence": 0.8}
+  },
+  {
+    "name": "meditation",
+    "aliases": ["meditation", "meditating", "yoga", "mindfulness", "breathing"],
+    "description": "Stillness, slow breathing and stretching, supported by spacious sounds with almost no beat.",
+    "suggested_preferences": {"mood": "peaceful", "energy": 0.25, "instrumentalness": 0.9}
+  },
+  {
+    "name": "breakup",
+    "aliases": ["breakup", "break up", "heartbreak", "missing someone", "crying"],
+    "description": "Getting through a breakup or missing someone, when you want songs that sit with the hurt.",
+    "suggested_preferences": {"mood": "sad", "energy": 0.42, "valence": 0.3}
+  },
+  {
+    "name": "late night",
+    "aliases": ["late night", "midnight", "night owl", "after dark", "2am", "3am"],
+    "description": "The quiet hours after midnight, awake while the city sleeps, with dreamy nocturnal songs.",
+    "suggested_preferences": {"energy": 0.5, "mood_tags": ["nocturnal", "dreamy"]}
+  }
+]
