@@ -1,247 +1,218 @@
-# 🎧 Model Card: VibeFinder 1.0
+# Model Card: VibeFinder 2.0
 
 **Author:** Joshua Lookshin (z23411056)
 
-## 1. Model Name
-
-**VibeFinder 1.0**, a content-based music recommender simulation.
+This card covers the applied AI system built on top of my Module 3 project. The model
+card for the original VibeFinder 1.0 is kept in
+[docs/original_vibefinder_1_model_card.md](docs/original_vibefinder_1_model_card.md).
 
 ---
 
-## 2. Intended Use
+## 1. Model name
 
-**Goal / task:** Given a listener's taste profile (favorite genre, favorite mood, target
-energy, and optional extras), VibeFinder suggests the top 5 songs from a small catalog and
-explains why each one was picked.
+**VibeFinder 2.0**, a retrieval-augmented music assistant that plans, checks its own
+work, and reports a confidence score.
 
-**Intended use:**
+---
 
-- Classroom exploration of how recommenders turn data into rankings.
-- Experimenting with weights, scoring modes, and diversity rules to see how results change.
-- Showing why a song was picked through its list of reasons.
+## 2. Intended use
 
-**Assumptions about the user:** They can describe their taste with one genre, one mood,
-and a target energy level, and their taste doesn't change with time of day or activity.
+**Goal:** Take a plain-language request ("something mellow for late-night studying"),
+look it up in a knowledge base, and return up to ten songs from a small catalog with
+the reasons, the sources, and a confidence score for the answer.
+
+**Intended for:**
+
+- Classroom exploration of retrieval, planning, self-checking, and evaluation.
+- Showing how an AI system can explain itself and say when it is unsure.
+- Experimenting: editing a guide file and watching the answers change.
 
 **Not intended for:**
 
-- Real users or a real product. The catalog is 20 made-up songs.
-- Judging the quality of an artist or genre. A low score only means "not similar to this
-  profile."
-- Any decision that matters (ads, payments to artists, content moderation).
-- Users whose taste can't be described with these labels. It has no lyrics, language,
-  culture, or listening history.
+- A real music product. The catalog is 20 made-up songs.
+- Judging the quality of an artist, a genre, or a listener's taste.
+- Any decision that matters to a person or a business.
+- Requests in languages other than English, or about real songs and artists.
 
 ---
 
-## 3. How the Model Works
+## 3. How it works
 
-Think of it as a judge with a checklist who looks at every song one at a time:
+1. The request is checked. Empty, very long, or wordless input is rejected.
+2. The request is compared with 80 short documents: one per song, plus guides that
+   describe genres, moods, activities, and sound traits such as "no lyrics".
+3. The matching guides are turned into targets. "Studying" becomes low energy, mostly
+   instrumental, focused. Each target remembers which guide it came from.
+4. Every song is scored with the VibeFinder 1.0 recipe, plus partial credit for related
+   genres and similar moods and a bonus for matching the request's own words.
+5. The assistant checks its own list. If something is wrong (for example the genre is
+   not in the catalog) it changes the plan once and tries again.
+6. It scores its confidence from 0 to 1 and writes a short explanation that only uses
+   what it retrieved.
 
-1. **Right genre?** Big bonus (+2 points).
-2. **Right mood?** Smaller bonus (+1 point).
-3. **How close is the energy?** Up to +1.5 points. A perfect match gets all of it, and a
-   song gets fewer points the further it is from the target, *in either direction*. A user
-   who wants calm music isn't rewarded with the loudest song.
-4. **Acoustic or not?** Up to +0.5 depending on whether the user likes acoustic sounds.
-5. **Extras, only if the user sets them:** closeness to a target valence (happiness),
-   danceability, tempo, popularity, instrumentalness, or speechiness (up to +0.5 each),
-   shared detailed mood tags like "nostalgic" (+0.5 each, max +1.0), and the user's favorite
-   decade (+0.5, or +0.25 for the decade next to it).
-
-The points are added up, every song is sorted from highest to lowest, and the top 5 are
-shown with the list of reasons.
-
-**Changes from the starter logic:** The starter had no scoring at all. I added the full
-checklist above, five new song attributes, switchable **scoring modes** (genre-first,
-mood-first, energy-focused, and the weight-shift experiment), an optional **diversity
-penalty** that subtracts points when an artist (−1.0) or genre (−0.5) is already in the
-list, and a formatted results table.
+If nothing in the knowledge base relates to the request, it says so and recommends
+nothing.
 
 ---
 
 ## 4. Data
 
-- **20 songs** in `data/songs.csv`. The starter had 10, and I added 10.
-- **16 genres:** pop, lofi (3 songs each), and one song each for rock, ambient, jazz,
-  synthwave, indie pop, hip hop, classical, metal, country, r&b, edm, folk, reggae, and
-  blues.
-- **14 moods:** chill, happy, intense, relaxed, sad, moody, focused, confident, peaceful,
-  aggressive, nostalgic, romantic, euphoric, and melancholy.
-- **Features:** energy, tempo, valence, danceability, acousticness, plus five I added:
-  popularity, release decade, detailed mood tags, instrumentalness, and speechiness.
-- **What's missing:** lyrics, language, artist background, real listening data (plays,
-  skips, likes), and most of the world's genres (Latin, Afrobeats, K-pop, and others). The
-  numbers are hand-made estimates, not measurements, so they reflect my idea of what a song
-  "feels" like.
+- **Catalog:** 20 songs in `data/songs.csv`, across 16 genres and 14 moods. The numbers
+  (energy, valence, and so on) are my hand-made estimates, not measurements.
+- **Knowledge guides:** 60 hand-written entries in `data/knowledge/`: 22 genres (16 in
+  the catalog and 6 that are not, such as k-pop and punk), 14 moods, 14 activities, and
+  10 sound traits.
+- **Evaluation cases:** 30 requests with expected outcomes in
+  `data/evaluation_cases.json`.
+- **No personal data** is collected. Requests are written to a local log file
+  (`logs/vibefinder.log`) that is not committed to the repository.
+
+All of this data was written by one person. Nothing comes from real listeners.
 
 ---
 
 ## 5. Strengths
 
-- **Clear-cut profiles work well.** Chill Lofi, Deep Intense Rock, and Nostalgic Night Owl
-  all put a near-perfect song at #1 with a big lead.
-- **Every result is explained.** The reasons add up exactly to the score, so it's easy to
-  see *why* a song ranked where it did, and easy to spot when the logic is wrong.
-- **Closeness scoring captures "vibe."** Two profiles with opposite energy (lofi vs.
-  high-energy pop) got completely different lists, and low-energy listeners weren't pushed
-  toward loud songs.
-- **Good "same vibe, different genre" picks.** Chill Lofi's #4 and #5 (ambient and jazz)
-  and the night owl's tag-based picks felt like songs I'd actually want next.
-- **Easy to experiment with.** Swapping modes or turning on diversity takes one
-  command-line flag, with no code changes.
+- **It shows its evidence.** Every preference lists the guide it came from, and every
+  song lists its reasons and source documents.
+- **It can say no.** Off-topic requests, empty input, and requests it cannot connect to
+  the knowledge base get a clear message instead of a made-up list.
+- **It admits substitutions.** When asked for a genre the catalog lacks, it uses the
+  closest one the guide lists and says that it did.
+- **It handles what 1.0 could not.** Free text, synonyms ("mellow"), activities
+  ("for the gym"), exclusions ("not country"), similar moods ("melancholy" for "sad"),
+  and out-of-range numbers.
+- **It is repeatable.** The same request always gives the same answer, which makes it
+  possible to test.
 
 ---
 
-## 6. Limitations and Bias
+## 6. Limitations and bias
 
-**Main weakness: high-energy songs crowd every list.** Energy is the only rule that gives
-points to *every* song, and most of my profiles asked for high energy (0.8–0.95). Four of
-the 20 songs have energy of 0.9 or higher, so they keep collecting about 1.4–1.5 points
-even when their genre and mood are wrong. *Gym Hero* showed up in the top 5 for 6 of the 9
-non-empty profiles, including Deep Intense Rock, Sad but Hyped, and Acoustic Headbanger.
-Quiet songs like *Harbor Lullaby* (folk, energy 0.30) and *Moonlit Sonata Study*
-(classical, energy 0.22) almost never appear unless the user asks for that exact genre. In
-effect, the system has a filter bubble that favors loud, mainstream-sounding tracks.
+**It matches words, not meaning.** The retriever only knows words that appear in the
+guides. "Tunes for cleaning the house" is read as a request for house music. A request
+that uses words the guides do not contain is declined even when a person would
+understand it ("something for a long flight").
 
-Other limitations I found:
+**The guides are my opinions.** I decided that studying means quiet instrumental music,
+that a party means euphoric and danceable, and that a rainy day means melancholy. A
+listener who studies to metal or relaxes to techno is treated as an exception. The
+guides are also written in English from one cultural point of view. Six genres that are
+missing from the catalog are mapped to a "closest" genre, so a request for k-pop or
+Latin music is answered with pop. That is honest about the catalog but still flattens
+those genres into whatever the catalog happens to have.
 
-- **Exact text matching:** "indie pop" gets no credit for "pop", and "melancholy" gets no
-  credit for "sad". *Harbor Lullaby* never made any top 5, even for the sad listener.
-- **Uneven catalog:** pop and lofi have 3 songs each, but 14 genres have only one. Fans of
-  rare genres get one real match and then filler.
-- **Genre can override what the user said they want:** For "Sad but Hyped," the only edm
-  song ranked #1 even though it is *euphoric*, the opposite of sad.
-- **Weak features stay weak:** The acoustic preference is worth 0.5 at most. For the metal
-  fan who likes acoustic music it added only +0.01 to +0.09, so it changed nothing.
-- **No input checking:** An energy target of 1.5 or an empty profile still produces a
-  confident-looking top 5.
+**The catalog bias from 1.0 is still there.** Fourteen genres have a single song, so a
+fan of one of them gets one real match and then neighbors. High-energy songs still
+collect energy points across many requests: *Gym Hero* was the top pick in 4 of the 23
+answered evaluation cases.
 
----
+**The "popular" and "mainstream" traits favor what is already popular.** Asking for
+"popular" music pushes high-popularity songs up, which is the same feedback loop real
+platforms have.
 
-## 7. Evaluation
+**One thing at a time.** Only one genre, one mood, and one activity can be targeted.
+"Lofi for studying and rock for the gym" is answered for lofi only, with a warning.
 
-**Profiles tested** (all defined in `src/main.py`):
+**Negation is shallow.** "Not sad", "no country or metal", and "anything but pop" work.
+Phrasings the planner does not recognize as negation do not: "I can't stand jazz" is
+read as a request for jazz.
 
-| Profile | Genre | Mood | Energy | Extras |
-| --- | --- | --- | --- | --- |
-| Default Pop / Happy | pop | happy | 0.80 | none |
-| High-Energy Pop | pop | intense | 0.90 | not acoustic, danceability 0.85 |
-| Chill Lofi | lofi | chill | 0.35 | acoustic, instrumentalness 0.85 |
-| Deep Intense Rock | rock | intense | 0.92 | not acoustic, tempo 150, valence 0.4 |
-| Nostalgic Night Owl | synthwave | moody | 0.65 | tags nostalgic/nocturnal/dreamy, 1980s |
-| Edge: Sad but Hyped | edm | sad | 0.90 | conflicting mood vs energy |
-| Edge: Genre Ghost | k-pop | happy | 0.70 | genre not in catalog |
-| Edge: Acoustic Headbanger | metal | aggressive | 0.95 | likes acoustic |
-| Edge: Out-of-Range Energy | classical | peaceful | 1.50 | invalid energy |
-| Edge: No Preferences | none | none | none | empty profile |
+**The self-check verifies consistency, not intent.** The checks confirm that the list
+matches the plan. They cannot tell that the plan misread the request. The "house" case
+passes every self-check.
 
-**What I looked for:** Does #1 match all of the user's wishes? Do the next four "feel"
-close? Does each reason add up to the score? Does one song keep showing up everywhere?
+**Confidence is a formula.** It combines how much of the request was recognized, how
+strongly the best document matched, and how well the top song fits the plan. It has
+never been compared with what real listeners thought of the answers, so it should be
+read as "more sure" or "less sure", not as a probability.
 
-**Does it match my intuition?** Mostly yes for the normal profiles. Chill Lofi gave
-*Library Rain*, *Midnight Coding*, and *Focus Flow*, which is exactly what I'd put on while
-studying. Then it gave *Spacewalk Thoughts* (ambient) and *Coffee Shop Stories* (jazz),
-which are good "same vibe, different genre" picks. Deep Intense Rock put *Storm Runner*
-first with a big lead (5.89 vs 3.70), which feels right.
-
-**Why does *Gym Hero* keep showing up for "Happy Pop"?** (in plain language) The system
-gives out points like a checklist. *Gym Hero* is a pop song, so it gets the big "right
-genre" bonus right away. It's also very energetic, which is close to the 0.8 energy the
-happy-pop listener asked for, so it gets almost full energy points. It only misses the
-"happy" checkbox, since its mood is "intense," and that box is worth less than the genre
-box. So a workout song beats *Rooftop Lights*, a genuinely happy song, just because
-*Rooftop Lights* is labeled "indie pop" instead of "pop."
-
-**Comparing pairs of profiles:**
-
-- *Pop / Happy vs High-Energy Pop:* Same genre, so both get the same three pop songs. Only
-  the order flips. *Sunrise City* (happy) wins for the first and *Gym Hero* (intense) wins
-  for the second, because the mood bonus moves to whichever song matches.
-- *Pop / Happy vs Chill Lofi:* No overlap at all. Pop/happy pulls upbeat songs around 0.8
-  energy, and Chill Lofi pulls quiet, acoustic songs around 0.35. This shows energy is
-  doing real work beyond genre.
-- *Pop / Happy vs Deep Intense Rock:* Only *Gym Hero* is in both lists. It's the "bridge"
-  song, pop for one and intense/high-energy for the other.
-- *Pop / Happy vs Nostalgic Night Owl:* No overlap. The night owl's mood tags and 1980s
-  decade pull in *Night Drive Loop*, *Midnight Coding*, and *Dusty Back Roads*, which share
-  "nostalgic," "nocturnal," or "dreamy" tags.
-- *High-Energy Pop vs Chill Lofi:* Complete opposites. Energy 0.9 vs 0.35 and
-  non-acoustic vs acoustic means the lists have nothing in common, which is what should
-  happen.
-- *High-Energy Pop vs Deep Intense Rock:* Big overlap (*Gym Hero*, *Storm Runner*,
-  *Neon Pulse*), because both ask for "intense" and energy around 0.9. Genre decides who
-  gets #1.
-- *High-Energy Pop vs Nostalgic Night Owl:* No overlap. The night owl's moderate energy
-  (0.65) and tags favor dreamy, older songs over loud new ones.
-- *Chill Lofi vs Deep Intense Rock:* No overlap. Rock gets loud, fast, non-acoustic tracks
-  and lofi gets slow acoustic ones.
-- *Chill Lofi vs Nostalgic Night Owl:* *Midnight Coding* and *Coffee Shop Stories* appear
-  in both. They're calm and also tagged "nocturnal"/"dreamy"/"nostalgic," so tags connect
-  the two profiles even with different genres.
-- *Deep Intense Rock vs Nostalgic Night Owl:* *Night Drive Loop* is in both lists. For the
-  rock fan it's only #5 (filler on energy), but for the night owl it's a perfect #1.
-- *Normal vs edge cases:* Genre Ghost behaves like a "mood + energy only" version of
-  Pop/Happy (same happy songs, lower scores). No Preferences shows the system has no
-  "I don't know" answer and returns alphabetical order.
-
-**Experiment: weight shift (energy ×2, genre ×0.5).** Run with `--mode weight_shift`. It
-made Pop/Happy *more* accurate (*Rooftop Lights* rose from #4 to #2) but made Sad but Hyped
-and Deep Intense Rock *less* accurate (sad songs vanished, and a happy pop song entered the
-rock list). So the change made results different, not better overall.
-
-**Automated checks:** `pytest` runs 14 tests covering CSV loading, the closeness formula,
-scoring and reasons, sort order, every scoring mode, the diversity penalty, the advanced
-features, and the table formatter.
-
-**What surprised me:** How much a single weight decides the outcome, and that a list
-built from simple addition still *felt* like a real playlist for the normal profiles.
+**The language model path is lightly tested.** The optional `--llm` writer is covered by
+tests that use a stand-in client. It has not been run against the live API in this
+repository, so its real-world wording quality is unmeasured.
 
 ---
 
-## 8. Future Work
+## 7. Misuse and safeguards
 
-1. **Fuzzy matching for genres and moods.** Treat "indie pop" as partly "pop" and "sad" as
-   close to "melancholy" (for example with a small similarity table) so near-misses earn
-   partial credit.
-2. **Check inputs and admit uncertainty.** Clamp targets to 0–1, warn when a genre isn't in
-   the catalog, and say "tell me more about your taste" instead of returning an
-   alphabetical list for an empty profile.
-3. **Balance the energy rule.** Give energy points only when a song also matches at least
-   one label, or normalize scores, so loud songs stop showing up in every list.
-4. **Add listening behavior.** Use simulated likes and skips to add a collaborative
-   filtering signal, so the system can make surprising picks and not only "more of the same."
-5. **Support more than one taste.** Let a profile hold several genres and moods (for
-   example "rock for the gym, lofi for studying").
+This is a low-stakes system, but the patterns in it apply to higher-stakes ones.
+
+| Risk | How it could happen | What the system does about it |
+| --- | --- | --- |
+| Treating output as authoritative | Someone reads the confident tone as fact | Every answer shows a confidence score, warnings, and its sources; low-confidence answers say "treat these picks as rough guesses" |
+| Ranking manipulation | Whoever controls the catalog stuffs a song's tags with popular request words to win the wording bonus | The wording bonus is capped at 1.5 points, below a genre match, and the matched words are printed so stuffing is visible. There is no defense beyond that; the catalog is trusted |
+| Biased guides | Whoever edits the guides decides what "studying" or "party" music is for everyone | Guides are plain JSON in version control, so every change is reviewable. No automatic check for bias exists |
+| Prompt injection | A request contains instructions aimed at the language model | The model never receives the raw request, only the structured plan and retrieved notes. Its draft is rejected if it names a song or artist that was not recommended |
+| Off-topic or abusive input | Using the assistant for unrelated tasks, or very large inputs | Requests over 300 characters are rejected; requests unrelated to the knowledge base are declined; results are limited to 10 songs |
+| Private information in logs | A user types something personal and it is logged | Logs stay on the local machine and are excluded from the repository. Requests are logged as typed, so the log should be treated as sensitive |
 
 ---
 
-## 9. Personal Reflection
+## 8. Testing results
 
-**Biggest learning moment:** Running the "Sad but Hyped" profile. I expected the system to
-find some middle ground, but it put a *euphoric* edm song first just because the genre
-matched. Nothing in the code was "wrong," but the weights made a choice I didn't intend.
-That's when I understood that a recommender's behavior lives in its weights and data, not
-only in its code, and that testing with strange profiles finds problems that normal
-profiles hide.
+**Automated tests:** 152 of 152 pass (`python -m pytest`).
 
-**How AI tools helped, and when I double-checked them:** An AI coding assistant sped up the
-repetitive parts: the CSV loader, the table formatter, extra songs for the dataset, and
-first drafts of the docs. It also helped me think through the scoring-mode design. I still
-had to check its work against the real output. One of its tests assumed the diversity
-penalty would add more genres to the lofi list, and it didn't, so the test was wrong, not
-the code. Its draft write-up also miscounted the catalog (it said 12 single-song genres
-when there are 14, and five high-energy songs when there are four). The lesson: treat AI
-output like a teammate's first draft and verify every number against the data.
+**Evaluation harness:** 28 of 30 cases pass (`python -m src.evaluate --baseline`).
 
-**How simple algorithms can still "feel" like recommendations:** The whole system is
-addition and sorting, yet the Chill Lofi list looked like a real study playlist, and the
-night owl list connected a lofi track, a country song, and a jazz song through shared
-"nostalgic" and "nocturnal" tags. A few well-chosen features and a closeness formula were
-enough to make the results feel personal, which also shows how easily people could trust a
-system like this more than they should.
+| Measure | Result |
+| --- | --- |
+| Cases passed | 28 of 30 (93%) |
+| Consistency | 30 of 30 identical on a second run |
+| Average confidence on passed answers | 0.84 |
+| Average confidence on failed answers | 0.51 |
+| Songs-only baseline (no guides) | 16 of 30 |
 
-**What I'd try next:** I'd add simulated user listening history so I could compare
-content-based results with collaborative filtering side by side, and add fuzzy matching for
-genres and moods. I'd also like to measure diversity directly (how many different artists
-and genres show up across all users), not just eyeball it.
+| Failed case | Request | Why it failed |
+| --- | --- | --- |
+| `ambiguous-word` | "tunes for cleaning the house" | "house" was read as a genre. Confidence 0.42 (low) |
+| `two-requests-in-one` | "lofi for studying and rock for the gym" | Only the lofi half was answered. Confidence 0.60 (medium), with a warning |
+
+The first evaluation run passed 27 of 30. One of the three failures ("sad songs"
+ranking a nostalgic song above a melancholy one) was a real ranking flaw and was fixed
+by weighting similar moods by closeness. The other two are limits of the design and
+are left failing on purpose, so the report stays honest.
+
+Recorded outputs are in [assets/sample_runs/](assets/sample_runs/).
+
+---
+
+## 9. What surprised me during testing
+
+- **The simple baseline beat the full system on one case.** The songs-only version
+  passes the "lofi for studying and rock for the gym" case, because plain word overlap
+  pulls in both lofi and rock songs. The smarter planner commits to one genre and loses
+  the other. More structure made that case worse.
+- **Confidence was backwards at first.** In an early run a correct artist lookup scored
+  0.28 while the half-answered two-genre request scored 0.86. The formula was measuring
+  how well the songs fit the plan, not whether the plan fit the request.
+- **The worst failures passed every self-check.** I expected the self-check to catch
+  the bad answers. It catches broken lists, but a misread request produces a perfectly
+  consistent wrong answer.
+- **An off-topic request got a confident answer.** "Write my essay about the day" was
+  answered with rainy-day songs before the coverage rule was tightened, because "day"
+  appears in two activity guides.
+
+---
+
+## 10. AI collaboration
+
+*This section is for the author to complete before submission.* The assignment asks for:
+
+1. How AI tools were used while building this project.
+2. One AI suggestion that was accepted, and why.
+3. One AI suggestion that was rejected or revised, and why.
+
+---
+
+## 11. Future work
+
+1. **Handle more than one request in a sentence.** Split "lofi for studying and rock for
+   the gym" into two plans and answer both.
+2. **Tell word meanings apart.** Use sentence embeddings, or a rule that a genre word
+   must sit in a genre-like position, so "cleaning the house" is not house music.
+3. **Calibrate confidence.** Collect human ratings for a set of answers and fit the
+   confidence formula to them.
+4. **Review the guides with other people.** Ask listeners with different habits and
+   backgrounds to check what each activity and mood guide assumes.
+5. **Measure the language model writer.** Run the `--llm` path on the evaluation cases
+   and compare its summaries with the template on accuracy and readability.
