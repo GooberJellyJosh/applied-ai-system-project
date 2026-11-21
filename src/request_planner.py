@@ -58,7 +58,7 @@ NEGATION_WORDS = {
 }
 # How many words before a mention are checked for a negation word
 NEGATION_WINDOW_WORDS = 3
-# Words that carry a negation on to the next mention ("no country or metal")
+# Words that join the items of a ruled-out list ("no country, rock, or metal")
 NEGATION_CONNECTORS = {"or", "nor"}
 
 # Guide types that can be found by name inside the request
@@ -184,7 +184,6 @@ def _mark_negated_mentions(
         for position, character in enumerate(lowered_request)
     )
 
-    previous_mention: Optional[GuideMention] = None
     for mention in mentions:
         # Only look at the words in the same clause, right before the mention
         text_before_mention = masked_request[: mention.start_position]
@@ -195,12 +194,40 @@ def _mark_negated_mentions(
             mention.is_negated = True
         elif "but" in words_before_mention and "anything" in lowered_request[: mention.start_position]:
             mention.is_negated = True  # "anything but country"
-        elif previous_mention is not None and previous_mention.is_negated:
-            # "no country or metal": the negation carries across "or"
-            text_between = lowered_request[previous_mention.end_position: mention.start_position]
-            if text_between.strip(" ,") in NEGATION_CONNECTORS:
+
+    _carry_negation_through_lists(lowered_request, mentions)
+
+
+def _carry_negation_through_lists(lowered_request: str, mentions: List[GuideMention]) -> None:
+    """
+    Spread a negation over a list such as "no country, rock, or metal".
+
+    Mentions separated only by commas and "or"/"nor" form one list. When the
+    first item is negated and the list contains "or" or "nor", every item is
+    negated. A plain comma is not enough ("not sad, lofi please" still asks
+    for lofi), because there the comma starts a new thought.
+    """
+    list_start = 0
+    while list_start < len(mentions):
+        # Grow the list while the next mention is joined by a list separator
+        list_end = list_start
+        list_has_or = False
+        while list_end + 1 < len(mentions):
+            text_between = lowered_request[
+                mentions[list_end].end_position: mentions[list_end + 1].start_position
+            ]
+            separator_words = text_between.replace(",", " ").split()
+            if not separator_words and "," not in text_between:
+                break  # the mentions are adjacent ("sad lofi"), not a list
+            if any(word not in NEGATION_CONNECTORS for word in separator_words):
+                break  # other words sit between them, so the list has ended
+            list_has_or = list_has_or or bool(separator_words)
+            list_end += 1
+
+        if list_end > list_start and list_has_or and mentions[list_start].is_negated:
+            for mention in mentions[list_start: list_end + 1]:
                 mention.is_negated = True
-        previous_mention = mention
+        list_start = list_end + 1
 
 
 # ---------------------------------------------------------------------------

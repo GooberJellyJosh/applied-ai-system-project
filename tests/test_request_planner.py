@@ -175,3 +175,24 @@ def test_single_genre_request_has_no_unused_mentions(knowledge_base, retriever, 
     plan = make_plan("happy pop for a party", knowledge_base, retriever, songs)
 
     assert plan.unused_mentions == []
+
+
+def test_negation_covers_a_comma_list_that_ends_with_or(knowledge_base, retriever, songs):
+    plan = make_plan("no country, rock, or metal", knowledge_base, retriever, songs)
+
+    assert sorted(plan.excluded_genres) == ["country", "metal", "rock"]
+    assert "genre" not in plan.preferences  # rock must not become the requested genre
+
+
+def test_a_plain_comma_after_a_negation_starts_a_new_thought(knowledge_base, retriever, songs):
+    plan = make_plan("not sad, lofi please", knowledge_base, retriever, songs)
+
+    assert plan.excluded_moods == ["sad"]
+    assert plan.preferences["genre"] == "lofi"
+
+
+def test_a_list_of_wanted_things_is_not_negated(knowledge_base, retriever, songs):
+    plan = make_plan("happy or euphoric pop", knowledge_base, retriever, songs)
+
+    assert plan.excluded_moods == []
+    assert plan.preferences["mood"] == "happy"
