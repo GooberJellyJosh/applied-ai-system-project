@@ -28,7 +28,7 @@ VibeFinder evaluation report
 +------------------------+-------------+----------------------------------------------+----------+-------+----------------------+--------+
 | title-lookup           | retrieval   | play Sunrise City                            | answered | 0.88  | Sunrise City         | PASS   |
 +------------------------+-------------+----------------------------------------------+----------+-------+----------------------+--------+
-| artist-lookup          | retrieval   | songs by Neon Echo                           | answered | 0.28  | Paper Hearts         | PASS   |
+| artist-lookup          | retrieval   | songs by Neon Echo                           | answered | 0.69  | Paper Hearts         | PASS   |
 +------------------------+-------------+----------------------------------------------+----------+-------+----------------------+--------+
 | trait-instrumental     | trait       | no lyrics, calm, for coding                  | answered | 0.74  | Moonlit Sonata Study | PASS   |
 +------------------------+-------------+----------------------------------------------+----------+-------+----------------------+--------+
@@ -70,7 +70,7 @@ Summary
 Passed: 28 of 30 cases (93%)
 By category: genre 2/2, mood 3/3, activity 3/3, retrieval 5/5, trait 2/2, exclusion 3/3, self-check 2/2, guardrail 3/3, off-topic 4/4, calibration 1/1, known-hard 0/2
 Consistency: 30 of 30 cases gave an identical answer when run twice
-Confidence (answered cases): average 0.8, passed cases 0.82, failed cases 0.64
+Confidence (answered cases): average 0.82, passed cases 0.84, failed cases 0.64
 
 Failed cases
 ------------
@@ -79,6 +79,6 @@ Failed cases
 
 Baseline comparison (songs-only knowledge base, no guides)
 ----------------------------------------------------------
-Full knowledge base: 28 of 30 passed. Songs-only baseline: 15 of 30 passed.
-Cases that only pass with the guides (14): genre-named, genre-alias, mood-synonym, mood-similar, activity-study, activity-party, activity-described, trait-instrumental, trait-negated, exclude-genre, exclude-mood, exclude-list, missing-genre-kpop, missing-genre-punk
+Full knowledge base: 28 of 30 passed. Songs-only baseline: 16 of 30 passed.
+Cases that only pass with the guides (13): genre-alias, mood-synonym, mood-similar, activity-study, activity-party, activity-described, trait-instrumental, trait-negated, exclude-genre, exclude-mood, exclude-list, missing-genre-kpop, missing-genre-punk
 Cases that only pass without the guides (1): two-requests-in-one

@@ -363,6 +363,12 @@ def compute_confidence(
     perfect_score = best_possible_score(plan.preferences, get_scoring_mode(plan.scoring_mode_name))
     if ranked_songs and perfect_score > 0:
         match_quality = min(1.0, ranked_songs[0].score / perfect_score)
+    elif ranked_songs:
+        # No preferences to fit (for example "songs by Neon Echo"). Judge the
+        # top pick by how strongly its own description matched the request.
+        top_song_match = plan.song_matches.get(ranked_songs[0].song["id"])
+        top_song_similarity = top_song_match.similarity if top_song_match else 0.0
+        match_quality = min(1.0, top_song_similarity / STRONG_SIMILARITY)
     else:
         match_quality = 0.0
 

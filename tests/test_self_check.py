@@ -192,3 +192,13 @@ def test_a_failed_check_caps_confidence(knowledge_base, retriever, songs):
 
     assert report.score <= FAILED_CHECK_CONFIDENCE_CAP
     assert report.label == "low"
+
+
+def test_a_direct_artist_lookup_is_not_scored_as_a_weak_match(knowledge_base, retriever, songs):
+    plan, ranked_songs = plan_and_rank("songs by Neon Echo", knowledge_base, retriever, songs)
+
+    report = compute_confidence(plan, ranked_songs, [], was_revised=False)
+
+    assert plan.preferences == {}  # an artist name sets no genre, mood, or energy
+    assert ranked_songs[0].song["artist"] == "Neon Echo"
+    assert report.label != "low"
