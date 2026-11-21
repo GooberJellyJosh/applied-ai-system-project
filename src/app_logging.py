@@ -2,8 +2,8 @@
 Logging setup for the VibeFinder assistant.
 
 Every request, retrieval result, plan, self-check, and error is written to
-logs/vibefinder.log so a run can be reviewed afterwards. Warnings and errors
-are also shown in the terminal.
+logs/vibefinder.log so a run can be reviewed afterwards. Errors are also
+shown in the terminal.
 """
 
 import logging
@@ -34,9 +34,10 @@ def configure_logging(log_dir: str = DEFAULT_LOG_DIR, show_info_in_terminal: boo
 
     formatter = logging.Formatter(LOG_FORMAT)
 
-    # Terminal handler: warnings and errors only, unless more detail is requested
+    # Terminal handler: errors only, so normal output stays readable. Handled
+    # situations such as a rejected request are warnings and go to the file.
     terminal_handler = logging.StreamHandler(sys.stderr)
-    terminal_handler.setLevel(logging.INFO if show_info_in_terminal else logging.WARNING)
+    terminal_handler.setLevel(logging.INFO if show_info_in_terminal else logging.ERROR)
     terminal_handler.setFormatter(formatter)
     logger.addHandler(terminal_handler)
 

@@ -1,7 +1,8 @@
-"""Shared pytest fixtures: the real catalog, knowledge base, and retriever."""
+"""Shared pytest fixtures: the real catalog, knowledge base, retriever, and assistant."""
 
 import pytest
 
+from src.assistant import MusicAssistant
 from src.knowledge_base import load_knowledge_base
 from src.recommender import load_songs
 from src.retriever import TfidfRetriever
@@ -26,3 +27,8 @@ def retriever(knowledge_base):
     """A retriever over the full knowledge base."""
     return TfidfRetriever(knowledge_base.documents)
 
+
+@pytest.fixture(scope="session")
+def assistant(songs, knowledge_base):
+    """An assistant that only uses the template writer (no network)."""
+    return MusicAssistant(songs, knowledge_base)
