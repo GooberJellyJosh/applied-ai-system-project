@@ -1,7 +1,15 @@
 """
-Command line runner for the VibeFinder music recommender.
+Command line runner for the VibeFinder music assistant.
 
 Run from the project root with:
+
+  Ask in plain language (VibeFinder 2.0 assistant):
+    python -m src.main --ask "something mellow for late-night studying"
+    python -m src.main --ask "k-pop dance party" --trace   # show every pipeline step
+    python -m src.main --chat                               # keep asking until you quit
+    python -m src.main --ask "sad jazz" --llm               # optional language model wording
+
+  Run the built-in taste profiles (original VibeFinder 1.0 mode):
     python -m src.main                              # every profile, balanced mode
     python -m src.main --profile chill_lofi         # one profile
     python -m src.main --mode mood_first --diverse  # another strategy + variety
@@ -10,8 +18,13 @@ Run from the project root with:
 
 import argparse
 
+from src.app_logging import configure_logging, get_logger
+from src.assistant import MusicAssistant, format_response
+from src.guardrails import clamp_preferences
 from src.recommender import SCORING_MODES, get_scoring_mode, load_songs, recommend_songs
 from src.table_format import format_table
+
+logger = get_logger("cli")
 
 SONGS_CSV_PATH = "data/songs.csv"
 TOP_K = 5
@@ -70,7 +83,20 @@ ALL_PROFILES = {**CORE_PROFILES, **EDGE_CASE_PROFILES}
 
 def parse_arguments() -> argparse.Namespace:
     """Read command line options for the profile, scoring mode, and number of results."""
-    parser = argparse.ArgumentParser(description="VibeFinder music recommender")
+    parser = argparse.ArgumentParser(description="VibeFinder music assistant")
+
+    # --- Assistant options (plain-language requests) ---
+    parser.add_argument("--ask", metavar="REQUEST", help="describe the music you want in plain language")
+    parser.add_argument("--chat", action="store_true", help="ask several requests in a row")
+    parser.add_argument("--trace", action="store_true", help="show each step the assistant took")
+    parser.add_argument(
+        "--llm",
+        action="store_true",
+        help="let a language model phrase the explanation (needs requirements-llm.txt and API credentials)",
+    )
+    parser.add_argument("--verbose", action="store_true", help="also print log messages to the terminal")
+
+    # --- Profile options (original VibeFinder 1.0 mode) ---
     parser.add_argument(
         "--profile",
         default="all",
@@ -132,13 +158,32 @@ def print_recommendations(
     print()
 
 
-def main() -> None:
-    """Load the catalog, run the chosen profiles, and print the top recommendations."""
-    arguments = parse_arguments()
-    if arguments.list:
-        print_available_options()
+def run_assistant(arguments: argparse.Namespace) -> None:
+    """Answer one plain-language request, or keep answering in chat mode."""
+    assistant = MusicAssistant.from_files(use_language_model=arguments.llm)
+
+    if arguments.ask is not None:
+        response = assistant.answer(arguments.ask, result_count=arguments.k)
+        print(format_response(response, show_trace=arguments.trace))
         return
 
+    # Chat mode: keep reading requests until the user quits
+    print("VibeFinder chat. Describe the music you want, or type 'quit' to exit.")
+    while True:
+        try:
+            request_text = input("\nYou: ")
+        except (EOFError, KeyboardInterrupt):
+            print()  # finish the line cleanly when input ends or Ctrl+C is pressed
+            break
+        if request_text.strip().lower() in ("quit", "exit", "q"):
+            break
+        response = assistant.answer(request_text, result_count=arguments.k)
+        print(format_response(response, show_trace=arguments.trace))
+    print("Goodbye.")
+
+
+def run_profiles(arguments: argparse.Namespace) -> None:
+    """Run the built-in taste profiles through the scoring recipe (VibeFinder 1.0 mode)."""
     scoring_mode = get_scoring_mode(arguments.mode)
     songs = load_songs(SONGS_CSV_PATH)
     print(f"Loaded songs: {len(songs)}")
@@ -146,10 +191,31 @@ def main() -> None:
     print(f"Diversity penalty: {'on' if arguments.diverse else 'off'}\n")
 
     for display_name, user_prefs in select_profiles(arguments.profile).values():
+        # Guardrail: pull out-of-range targets (for example energy 1.5) back into range
+        safe_prefs, preference_warnings = clamp_preferences(user_prefs)
+        for warning in preference_warnings:
+            logger.warning("Profile %r: %s", display_name, warning)
+            print(f"Warning: {warning}")
+        if not safe_prefs:
+            print("Warning: this profile has no preferences, so the list below is not personalized.")
+
         recommendations = recommend_songs(
-            user_prefs, songs, k=arguments.k, mode=scoring_mode, diversity=arguments.diverse
+            safe_prefs, songs, k=arguments.k, mode=scoring_mode, diversity=arguments.diverse
         )
-        print_recommendations(display_name, user_prefs, scoring_mode.name, recommendations)
+        print_recommendations(display_name, safe_prefs, scoring_mode.name, recommendations)
+
+
+def main() -> None:
+    """Read the command line options and run the assistant or the built-in profiles."""
+    arguments = parse_arguments()
+    configure_logging(show_info_in_terminal=arguments.verbose)
+
+    if arguments.list:
+        print_available_options()
+    elif arguments.ask is not None or arguments.chat:
+        run_assistant(arguments)
+    else:
+        run_profiles(arguments)
 
 
 if __name__ == "__main__":

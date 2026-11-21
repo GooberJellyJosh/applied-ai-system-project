@@ -240,6 +240,11 @@ class MusicAssistant:
 
         # --- 7. WRITE ---------------------------------------------------------
         summary_text, writer_name = self._write_summary(plan, ranked_songs, trace)
+        if self.language_model_writer is not None and writer_name == self.template_writer.name:
+            warnings.append(
+                "The language model was not used for this summary (see logs/vibefinder.log); "
+                "the template writer wrote it instead."
+            )
 
         logger.info(
             "Answered %r: status=%s confidence=%.2f revised=%s writer=%s top=%s",
