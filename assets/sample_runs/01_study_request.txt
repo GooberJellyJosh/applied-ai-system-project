@@ -1,0 +1,53 @@
+$ python -m src.main --ask "something mellow for late-night studying" --k 3 --trace
+Request: something mellow for late-night studying
+Status: answered   |   Confidence: 0.92 (high)   |   Summary by: template
+
+How I read your request:
+  - genre: lofi  <- retrieved genre guide (similarity 0.33) [genre:lofi]
+  - mood: chill  <- you said "mellow" [mood:chill]
+  - energy: 0.35  <- you said "studying" [activity:studying]
+  - acoustic sound: preferred  <- you said "studying" [activity:studying]
+  - instrumentalness: 0.85  <- you said "studying" [activity:studying]
+
+Summary:
+  I looked for chill lofi around energy 0.35. The knowledge base says: Activity guide
+  "studying": Long quiet sessions of reading, homework and exam revision that need steady
+  background music without distracting lyrics. The best match is "Library Rain" by Paper
+  Lanterns (genre match: lofi; mood match: chill; energy 0.35 vs target 0.35). Also worth
+  a listen: "Midnight Coding" and "Spacewalk Thoughts".
+
++---+--------------------+-------+---------------------------------------------------+
+| # | Song               | Score | Why (with sources)                                |
++===+====================+=======+===================================================+
+| 1 | Library Rain       | 5.39  | - genre match: lofi (+2.00)                       |
+|   | Paper Lanterns     |       | - mood match: chill (+1.00)                       |
+|   | lofi / chill       |       | - energy 0.35 vs target 0.35 (+1.50)              |
+|   |                    |       | - acoustic preference (+0.43)                     |
+|   |                    |       | - instrumentalness close to target (+0.46)        |
+|   |                    |       | sources: song:4, genre:lofi, mood:chill           |
++---+--------------------+-------+---------------------------------------------------+
+| 2 | Midnight Coding    | 4.74  | - genre match: lofi (+2.00)                       |
+|   | LoRoom             |       | - mood match: chill (+1.00)                       |
+|   | lofi / chill       |       | - energy 0.42 vs target 0.35 (+1.40)              |
+|   |                    |       | - acoustic preference (+0.35)                     |
+|   |                    |       | - instrumentalness close to target (+0.48)        |
+|   |                    |       | - diversity: genre already listed (-0.50)         |
+|   |                    |       | sources: song:2, genre:lofi, mood:chill           |
++---+--------------------+-------+---------------------------------------------------+
+| 3 | Spacewalk Thoughts | 4.51  | - mood match: chill (+1.00)                       |
+|   | Orbit Bloom        |       | - energy 0.28 vs target 0.35 (+1.40)              |
+|   | ambient / chill    |       | - acoustic preference (+0.46)                     |
+|   |                    |       | - instrumentalness close to target (+0.45)        |
+|   |                    |       | - related genre: ambient is close to lofi (+1.20) |
+|   |                    |       | sources: song:6, genre:lofi, mood:chill           |
++---+--------------------+-------+---------------------------------------------------+
+Self-check: 9/9 checks passed
+
+Trace:
+  1. GUARDRAIL: request accepted
+  2. RETRIEVE: activity:late night (0.37), genre:lofi (0.33), activity:studying (0.23), mood:moody (0.21), activity:date night (0.15)
+  3. PLAN: preferences={'genre': 'lofi', 'energy': 0.35, 'mood': 'chill', 'instrumentalness': 0.85, 'likes_acoustic': True}, mode=balanced, diversity=on
+  4. ACT: ranked Library Rain (5.39), Midnight Coding (4.74), Spacewalk Thoughts (4.51)
+  5. CHECK: 9/9 checks passed
+  6. SCORE: confidence 0.92 (high) from {'request_coverage': 1.0, 'retrieval_strength': 0.82, 'match_quality': 0.98}
+  7. WRITE: summary written by the template writer

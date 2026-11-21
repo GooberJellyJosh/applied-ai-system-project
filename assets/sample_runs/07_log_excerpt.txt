@@ -1,0 +1,2 @@
+$ cat logs/vibefinder.log    (excerpt: the "k-pop dance party" request from 02_missing_genre_revision.txt)
+

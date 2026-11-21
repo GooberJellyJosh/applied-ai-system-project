@@ -1,0 +1,38 @@
+$ python -m src.main --ask "sad songs for a rainy day but not country" --k 3
+Request: sad songs for a rainy day but not country
+Status: answered   |   Confidence: 0.84 (high)   |   Summary by: template
+
+How I read your request:
+  - mood: sad  <- you said "sad" [mood:sad]
+  - energy: 0.35  <- you said "rainy day" [activity:rainy day]
+  - acoustic sound: preferred  <- you said "rainy day" [activity:rainy day]
+  - mood tags: rainy  <- read directly from the request
+
+Summary:
+  I looked for sad around energy 0.35. The knowledge base says: Activity guide "rainy
+  day": Grey skies and rain on the window, a time for reflective, soft, slightly sad songs
+  indoors. I left out anything country, as you asked. The best match is "Crossroads Ache"
+  by Muddy Delta Trio (mood match: sad; energy 0.45 vs target 0.35; acoustic preference).
+  Also worth a listen: "Paper Hearts" and "Harbor Lullaby".
+
++---+-------------------+-------+----------------------------------------------------+
+| # | Song              | Score | Why (with sources)                                 |
++===+===================+=======+====================================================+
+| 1 | Crossroads Ache   | 4.77  | - mood match: sad (+3.00)                          |
+|   | Muddy Delta Trio  |       | - energy 0.45 vs target 0.35 (+0.90)               |
+|   | blues / sad       |       | - acoustic preference (+0.36)                      |
+|   |                   |       | - matches your wording: sad (+0.51)                |
+|   |                   |       | sources: song:19, mood:sad                         |
++---+-------------------+-------+----------------------------------------------------+
+| 2 | Paper Hearts      | 4.65  | - mood match: sad (+3.00)                          |
+|   | Neon Echo         |       | - energy 0.48 vs target 0.35 (+0.87)               |
+|   | pop / sad         |       | - acoustic preference (+0.20)                      |
+|   |                   |       | - matches your wording: sad (+0.58)                |
+|   |                   |       | sources: song:20, mood:sad                         |
++---+-------------------+-------+----------------------------------------------------+
+| 3 | Harbor Lullaby    | 3.20  | - energy 0.30 vs target 0.35 (+0.95)               |
+|   | Willow & Wren     |       | - acoustic preference (+0.45)                      |
+|   | folk / melancholy |       | - similar mood: melancholy is close to sad (+1.80) |
+|   |                   |       | sources: song:17, mood:sad                         |
++---+-------------------+-------+----------------------------------------------------+
+Self-check: 8/8 checks passed

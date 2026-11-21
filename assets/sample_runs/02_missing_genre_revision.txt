@@ -1,0 +1,59 @@
+$ python -m src.main --ask "k-pop dance party" --k 3 --trace
+Request: k-pop dance party
+Status: answered   |   Confidence: 0.83 (high)   |   Summary by: template
+
+How I read your request:
+  - genre: pop  <- closest available genre to k-pop [genre:k-pop]
+  - mood: euphoric  <- you said "party" [activity:party]
+  - energy: 0.9  <- you said "party" [activity:party]
+  - acoustic sound: avoided  <- you said "party" [activity:party]
+  - danceability: 0.9  <- you said "party" [activity:party]
+
+Summary:
+  I looked for euphoric pop around energy 0.9. The knowledge base says: Activity guide
+  "party": A crowded room, a dance floor and friends celebrating, where everyone wants
+  loud, danceable, feel-good anthems. The catalog has no k-pop songs, so I used pop, the
+  closest genre the knowledge base lists. The best match is "Gym Hero" by Max Pulse (genre
+  match: pop; energy 0.93 vs target 0.90; non-acoustic preference). Also worth a listen:
+  "Sunrise City" and "Rooftop Lights".
+
++---+-------------------+-------+------------------------------------------------------+
+| # | Song              | Score | Why (with sources)                                   |
++===+===================+=======+======================================================+
+| 1 | Gym Hero          | 5.34  | - genre match: pop (+2.00)                           |
+|   | Max Pulse         |       | - energy 0.93 vs target 0.90 (+1.46)                 |
+|   | pop / intense     |       | - non-acoustic preference (+0.47)                    |
+|   |                   |       | - danceability close to target (+0.49)               |
+|   |                   |       | - similar mood: intense is close to euphoric (+0.45) |
+|   |                   |       | - matches your wording: pop (+0.47)                  |
+|   |                   |       | sources: song:5, genre:pop, mood:euphoric            |
++---+-------------------+-------+------------------------------------------------------+
+| 2 | Sunrise City      | 5.31  | - genre match: pop (+2.00)                           |
+|   | Neon Echo         |       | - energy 0.82 vs target 0.90 (+1.38)                 |
+|   | pop / happy       |       | - non-acoustic preference (+0.41)                    |
+|   |                   |       | - danceability close to target (+0.45)               |
+|   |                   |       | - similar mood: happy is close to euphoric (+0.60)   |
+|   |                   |       | - matches your wording: pop (+0.47)                  |
+|   |                   |       | sources: song:1, genre:pop, mood:euphoric            |
++---+-------------------+-------+------------------------------------------------------+
+| 3 | Rooftop Lights    | 4.34  | - energy 0.76 vs target 0.90 (+1.29)                 |
+|   | Indigo Parade     |       | - non-acoustic preference (+0.33)                    |
+|   | indie pop / happy |       | - danceability close to target (+0.46)               |
+|   |                   |       | - related genre: indie pop is close to pop (+1.20)   |
+|   |                   |       | - similar mood: happy is close to euphoric (+0.60)   |
+|   |                   |       | - matches your wording: pop (+0.46)                  |
+|   |                   |       | sources: song:10, genre:pop, mood:euphoric           |
++---+-------------------+-------+------------------------------------------------------+
+Self-check: 10/10 checks passed (after revising the plan once)
+
+Trace:
+  1. GUARDRAIL: request accepted
+  2. RETRIEVE: activity:party (0.44), genre:k-pop (0.37), genre:edm (0.34), genre:indie pop (0.22), trait:danceable (0.21)
+  3. PLAN: preferences={'genre': 'k-pop', 'energy': 0.9, 'mood': 'euphoric', 'danceability': 0.9, 'likes_acoustic': False}, mode=balanced, diversity=off
+  4. ACT: ranked Gym Hero (4.54), Sunrise City (4.50), Rooftop Lights (4.04)
+  5. CHECK: 8/9 checks passed (failed: requested_genre_available)
+  6. REVISE: The catalog has no k-pop songs, so the plan now uses pop, the closest genre listed in the k-pop guide.
+  7. ACT: ranked Gym Hero (5.34), Sunrise City (5.31), Rooftop Lights (4.34)
+  8. CHECK: 10/10 checks passed
+  9. SCORE: confidence 0.83 (high) from {'request_coverage': 1.0, 'retrieval_strength': 0.99, 'match_quality': 0.97}
+  10. WRITE: summary written by the template writer

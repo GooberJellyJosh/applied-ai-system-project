@@ -1,0 +1,93 @@
+$ python -m src.main --ask "tunes for cleaning the house" --k 3 --trace
+Request: tunes for cleaning the house
+Status: answered   |   Confidence: 0.42 (low)   |   Summary by: template
+
+How I read your request:
+  - genre: edm  <- closest available genre to house [genre:house]
+  - energy: 0.9  <- typical energy of house [genre:house]
+
+Summary:
+  I looked for edm around energy 0.9. The knowledge base says: Genre guide "house": Steady
+  four-on-the-floor club beats with hypnotic synth loops built for long dancing sessions.
+  The catalog has no house songs, so I used edm, the closest genre the knowledge base
+  lists. The best match is "Neon Pulse" by Kilowatt Kids (genre match: edm; energy 0.95 vs
+  target 0.90). Also worth a listen: "Night Drive Loop" and "Gym Hero".
+
++---+-------------------+-------+----------------------------------------------------+
+| # | Song              | Score | Why (with sources)                                 |
++===+===================+=======+====================================================+
+| 1 | Neon Pulse        | 4.71  | - genre match: edm (+4.00)                         |
+|   | Kilowatt Kids     |       | - energy 0.95 vs target 0.90 (+0.71)               |
+|   | edm / euphoric    |       | sources: song:16, genre:edm                        |
++---+-------------------+-------+----------------------------------------------------+
+| 2 | Night Drive Loop  | 3.04  | - energy 0.75 vs target 0.90 (+0.64)               |
+|   | Neon Echo         |       | - related genre: synthwave is close to edm (+2.40) |
+|   | synthwave / moody |       | sources: song:8, genre:edm                         |
++---+-------------------+-------+----------------------------------------------------+
+| 3 | Gym Hero          | 2.53  | - energy 0.93 vs target 0.90 (+0.73)               |
+|   | Max Pulse         |       | - related genre: pop is close to edm (+1.80)       |
+|   | pop / intense     |       | sources: song:5, genre:edm                         |
++---+-------------------+-------+----------------------------------------------------+
+Self-check: 9/9 checks passed (after revising the plan once)
+Warning: Low confidence: treat these picks as rough guesses.
+
+Trace:
+  1. GUARDRAIL: request accepted
+  2. RETRIEVE: genre:house (0.54)
+  3. PLAN: preferences={'genre': 'house', 'energy': 0.9}, mode=genre_first, diversity=off
+  4. ACT: ranked Neon Pulse (3.11), Night Drive Loop (2.44), Storm Runner (0.74)
+  5. CHECK: 7/8 checks passed (failed: requested_genre_available)
+  6. REVISE: The catalog has no house songs, so the plan now uses edm, the closest genre listed in the house guide.
+  7. ACT: ranked Neon Pulse (4.71), Night Drive Loop (3.04), Gym Hero (2.53)
+  8. CHECK: 9/9 checks passed
+  9. SCORE: confidence 0.42 (low) from {'request_coverage': 0.5, 'retrieval_strength': 1.0, 'match_quality': 0.99}
+  10. WRITE: summary written by the template writer
+
+$ python -m src.main --ask "lofi for studying and rock for the gym" --k 3
+Request: lofi for studying and rock for the gym
+Status: answered   |   Confidence: 0.60 (medium)   |   Summary by: template
+
+How I read your request:
+  - genre: lofi  <- you said "lofi" [genre:lofi]
+  - mood: focused  <- you said "studying" [activity:studying]
+  - energy: 0.35  <- you said "studying" [activity:studying]
+  - acoustic sound: preferred  <- you said "studying" [activity:studying]
+  - instrumentalness: 0.85  <- you said "studying" [activity:studying]
+
+Summary:
+  I looked for focused lofi around energy 0.35. The knowledge base says: Activity guide
+  "studying": Long quiet sessions of reading, homework and exam revision that need steady
+  background music without distracting lyrics. The best match is "Focus Flow" by LoRoom
+  (genre match: lofi; mood match: focused; energy 0.40 vs target 0.35). Also worth a
+  listen: "Library Rain" and "Midnight Coding".
+
++---+-----------------+-------+---------------------------------------------------+
+| # | Song            | Score | Why (with sources)                                |
++===+=================+=======+===================================================+
+| 1 | Focus Flow      | 5.81  | - genre match: lofi (+2.00)                       |
+|   | LoRoom          |       | - mood match: focused (+1.00)                     |
+|   | lofi / focused  |       | - energy 0.40 vs target 0.35 (+1.42)              |
+|   |                 |       | - acoustic preference (+0.39)                     |
+|   |                 |       | - instrumentalness close to target (+0.47)        |
+|   |                 |       | - matches your wording: lofi (+0.52)              |
+|   |                 |       | sources: song:9, genre:lofi, mood:focused         |
++---+-----------------+-------+---------------------------------------------------+
+| 2 | Library Rain    | 5.50  | - genre match: lofi (+2.00)                       |
+|   | Paper Lanterns  |       | - energy 0.35 vs target 0.35 (+1.50)              |
+|   | lofi / chill    |       | - acoustic preference (+0.43)                     |
+|   |                 |       | - instrumentalness close to target (+0.46)        |
+|   |                 |       | - similar mood: chill is close to focused (+0.60) |
+|   |                 |       | - matches your wording: lofi (+0.50)              |
+|   |                 |       | sources: song:4, genre:lofi, mood:focused         |
++---+-----------------+-------+---------------------------------------------------+
+| 3 | Midnight Coding | 5.39  | - genre match: lofi (+2.00)                       |
+|   | LoRoom          |       | - energy 0.42 vs target 0.35 (+1.40)              |
+|   | lofi / chill    |       | - acoustic preference (+0.35)                     |
+|   |                 |       | - instrumentalness close to target (+0.48)        |
+|   |                 |       | - similar mood: chill is close to focused (+0.60) |
+|   |                 |       | - matches your wording: lofi (+0.55)              |
+|   |                 |       | sources: song:2, genre:lofi, mood:focused         |
++---+-----------------+-------+---------------------------------------------------+
+Self-check: 10/10 checks passed
+Warning: You mentioned more than one genre (lofi, rock). Only lofi was used; ask separately for the others.
+Warning: You mentioned more than one activity (studying, workout). Only studying was used; ask separately for the others.

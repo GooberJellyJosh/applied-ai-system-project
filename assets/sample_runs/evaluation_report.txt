@@ -1,3 +1,4 @@
+$ python -m src.evaluate --baseline --json assets/sample_runs/evaluation_results.json
 VibeFinder evaluation report
 ============================
 
@@ -62,7 +63,7 @@ VibeFinder evaluation report
 +------------------------+-------------+----------------------------------------------+----------+-------+----------------------+--------+
 | ambiguous-word         | known-hard  | tunes for cleaning the house                 | answered | 0.42  | Neon Pulse           | FAIL   |
 +------------------------+-------------+----------------------------------------------+----------+-------+----------------------+--------+
-| two-requests-in-one    | known-hard  | lofi for studying and rock for the gym       | answered | 0.86  | Focus Flow           | FAIL   |
+| two-requests-in-one    | known-hard  | lofi for studying and rock for the gym       | answered | 0.60  | Focus Flow           | FAIL   |
 +------------------------+-------------+----------------------------------------------+----------+-------+----------------------+--------+
 
 Summary
@@ -70,7 +71,7 @@ Summary
 Passed: 28 of 30 cases (93%)
 By category: genre 2/2, mood 3/3, activity 3/3, retrieval 5/5, trait 2/2, exclusion 3/3, self-check 2/2, guardrail 3/3, off-topic 4/4, calibration 1/1, known-hard 0/2
 Consistency: 30 of 30 cases gave an identical answer when run twice
-Confidence (answered cases): average 0.82, passed cases 0.84, failed cases 0.64
+Confidence (answered cases): average 0.81, passed cases 0.84, failed cases 0.51
 
 Failed cases
 ------------
@@ -82,3 +83,5 @@ Baseline comparison (songs-only knowledge base, no guides)
 Full knowledge base: 28 of 30 passed. Songs-only baseline: 16 of 30 passed.
 Cases that only pass with the guides (13): genre-alias, mood-synonym, mood-similar, activity-study, activity-party, activity-described, trait-instrumental, trait-negated, exclude-genre, exclude-mood, exclude-list, missing-genre-kpop, missing-genre-punk
 Cases that only pass without the guides (1): two-requests-in-one
+
+JSON results written to assets/sample_runs/evaluation_results.json
