@@ -160,3 +160,18 @@ def test_scoring_mode_follows_what_the_request_specifies(
 def test_diversity_is_off_only_when_a_genre_is_named(knowledge_base, retriever, songs):
     assert not make_plan("jazz", knowledge_base, retriever, songs).use_diversity
     assert make_plan("happy", knowledge_base, retriever, songs).use_diversity
+
+
+def test_second_genre_and_activity_are_reported_as_unused(knowledge_base, retriever, songs):
+    plan = make_plan("lofi for studying and rock for the gym", knowledge_base, retriever, songs)
+
+    assert plan.preferences["genre"] == "lofi"       # the first genre wins
+    assert sorted(plan.unused_mentions) == ["rock", "workout"]
+    assert any("more than one genre" in warning for warning in plan.warnings)
+    assert any("more than one activity" in warning for warning in plan.warnings)
+
+
+def test_single_genre_request_has_no_unused_mentions(knowledge_base, retriever, songs):
+    plan = make_plan("happy pop for a party", knowledge_base, retriever, songs)
+
+    assert plan.unused_mentions == []

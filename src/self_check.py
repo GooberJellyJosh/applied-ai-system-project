@@ -51,6 +51,8 @@ MATCH_QUALITY_WEIGHT = 0.60     # how close the top pick is to a perfect score
 STRONG_SIMILARITY = 0.45
 # Confidence is multiplied by this when the plan had to be revised
 REVISION_PENALTY = 0.85
+# Confidence is multiplied by this when part of the request had to be ignored
+UNUSED_MENTION_PENALTY = 0.70
 # Confidence can never be higher than this when a check still fails
 FAILED_CHECK_CONFIDENCE_CAP = 0.35
 
@@ -377,6 +379,8 @@ def compute_confidence(
     )
     if was_revised:
         confidence *= REVISION_PENALTY
+    if plan.unused_mentions:
+        confidence *= UNUSED_MENTION_PENALTY
     if failed_check_names(checks):
         confidence = min(confidence, FAILED_CHECK_CONFIDENCE_CAP)
     confidence = round(confidence, 2)

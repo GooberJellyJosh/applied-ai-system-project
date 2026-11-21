@@ -202,3 +202,16 @@ def test_a_direct_artist_lookup_is_not_scored_as_a_weak_match(knowledge_base, re
     assert plan.preferences == {}  # an artist name sets no genre, mood, or energy
     assert ranked_songs[0].song["artist"] == "Neon Echo"
     assert report.label != "low"
+
+
+def test_confidence_drops_when_part_of_the_request_was_ignored(knowledge_base, retriever, songs):
+    single_plan, single_ranking = plan_and_rank("lofi for studying", knowledge_base, retriever, songs)
+    double_plan, double_ranking = plan_and_rank(
+        "lofi for studying and rock for the gym", knowledge_base, retriever, songs
+    )
+
+    single_report = compute_confidence(single_plan, single_ranking, [], was_revised=False)
+    double_report = compute_confidence(double_plan, double_ranking, [], was_revised=False)
+
+    assert double_report.score < single_report.score
+    assert double_report.label != "high"

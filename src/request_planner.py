@@ -110,6 +110,9 @@ class RequestPlan:
     top_similarity: float = 0.0       # best similarity of any retrieved document
     request_coverage: float = 0.0     # share of request words the knowledge base recognized
     has_named_mentions: bool = False
+    # Guides the listener named that the plan could not use, because only one
+    # genre, one mood, and one activity can be targeted at a time.
+    unused_mentions: List[str] = field(default_factory=list)
     # Set by the self-check when the requested genre is not in the catalog and
     # the closest available genre is used instead (holds the original request).
     originally_requested_genre: Optional[str] = None
@@ -384,6 +387,24 @@ def build_request_plan(
             continue
         for preference_name, value in mention.document.metadata.get("suggested_preferences", {}).items():
             set_preference(preference_name, value, mention.document, f'you said "{mention.matched_phrase}"')
+
+    # --- Be honest about anything named that could not be used ----------------
+    # Only the first genre, mood, and activity are targeted. A request such as
+    # "lofi for studying and rock for the gym" is really two requests.
+    for doc_type, used_mention in (
+        (GENRE_TYPE, genre_mention), (MOOD_TYPE, mood_mention), (ACTIVITY_TYPE, activity_mention),
+    ):
+        extra_names = [
+            mention.document.name for mention in wanted_mentions
+            if mention.document.doc_type == doc_type and mention is not used_mention
+        ]
+        if used_mention is not None and extra_names:
+            plan.unused_mentions.extend(extra_names)
+            plan.warnings.append(
+                f"You mentioned more than one {doc_type} ({used_mention.document.name}, "
+                f"{', '.join(extra_names)}). Only {used_mention.document.name} was used; "
+                f"ask separately for the others."
+            )
 
     # --- Facts read straight from the request text ----------------------------
     requested_decade = find_requested_decade(request_text)
