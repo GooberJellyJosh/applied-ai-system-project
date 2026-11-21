@@ -24,15 +24,16 @@ from src.knowledge_base import KnowledgeDocument
 # Words that carry no musical meaning. They are removed before matching so a
 # request like "I want some music for studying" is matched on "studying" only.
 STOP_WORDS = {
-    "a", "an", "and", "any", "are", "as", "at", "be", "but", "by", "can", "could",
-    "do", "don", "for", "from", "get", "give", "got", "have", "how", "i", "if",
-    "im", "in", "is", "it", "its", "just", "kind", "like", "listen", "looking",
-    "me", "music", "my", "need", "of", "on", "or", "play", "playlist", "please",
+    "a", "about", "an", "and", "any", "anything", "are", "as", "at", "be", "but",
+    "by", "can", "could", "do", "don", "except", "for", "from", "get", "give",
+    "got", "have", "how", "i", "if", "im", "in", "is", "it", "its", "just",
+    "kind", "like", "listen", "looking", "love", "me", "music", "my", "need",
+    "no", "not", "nothing", "of", "on", "or", "play", "playlist", "please",
     "really", "recommend", "recommendation", "recommendations", "should", "so",
     "some", "something", "song", "songs", "sort", "stuff", "suggest", "that",
     "the", "then", "these", "thing", "things", "this", "to", "track", "tracks",
     "tune", "tunes", "up", "very", "want", "wanna", "was", "what", "when",
-    "which", "while", "will", "with", "would", "you", "your",
+    "which", "while", "will", "with", "without", "would", "you", "your",
 }
 
 # A token is letters/digits, optionally joined by "&" so "r&b" stays one word.
