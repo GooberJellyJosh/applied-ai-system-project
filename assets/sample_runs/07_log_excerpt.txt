@@ -1,2 +1,8 @@
 $ cat logs/vibefinder.log    (excerpt: the "k-pop dance party" request from 02_missing_genre_revision.txt)
-
+2026-11-21 13:31:35,939 | INFO    | vibefinder.assistant | Request accepted: 'k-pop dance party'
+2026-11-21 13:31:35,940 | INFO    | vibefinder.planner | Plan for 'k-pop dance party': preferences={'genre': 'k-pop', 'energy': 0.9, 'mood': 'euphoric', 'danceability': 0.9, 'likes_acoustic': False} mode=balanced diversity=False coverage=1.00 top_similarity=0.44
+2026-11-21 13:31:35,940 | INFO    | vibefinder.ranker | Ranked 20 songs (mode=balanced): [('Gym Hero', 4.54), ('Sunrise City', 4.5), ('Rooftop Lights', 4.04), ('Neon Pulse', 3.99), ('Paper Hearts', 3.24)]
+2026-11-21 13:31:35,940 | WARNING | vibefinder.self_check | Self-check failed: requested_genre_available (the catalog has no k-pop songs)
+2026-11-21 13:31:35,941 | INFO    | vibefinder.assistant | Plan revised: The catalog has no k-pop songs, so the plan now uses pop, the closest genre listed in the k-pop guide.
+2026-11-21 13:31:35,941 | INFO    | vibefinder.ranker | Ranked 20 songs (mode=balanced): [('Gym Hero', 5.34), ('Sunrise City', 5.31), ('Rooftop Lights', 4.34), ('Neon Pulse', 4.29), ('Paper Hearts', 4.04)]
+2026-11-21 13:31:35,941 | INFO    | vibefinder.assistant | Answered 'k-pop dance party': status=answered confidence=0.83 revised=True writer=template top=Gym Hero

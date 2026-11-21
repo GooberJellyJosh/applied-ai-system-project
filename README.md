@@ -38,7 +38,7 @@ The original README and model card are kept in
 | --- | --- | --- |
 | Retrieval-augmented generation | A knowledge base of 80 documents (20 songs plus genre, mood, activity, and sound-trait guides) and a TF-IDF retriever. Retrieved guides set the scoring preferences and are quoted in the answer. | `src/knowledge_base.py`, `src/retriever.py`, `src/request_planner.py`, `data/knowledge/` |
 | Agentic workflow | The assistant plans, acts, checks its own result, and revises the plan once when a check fails. Each step is visible with `--trace`. | `src/assistant.py`, `src/self_check.py` |
-| Reliability and testing | 149 automated tests, a 30-case evaluation harness with a baseline comparison, and a confidence score on every answer. | `tests/`, `src/evaluate.py`, `data/evaluation_cases.json` |
+| Reliability and testing | 152 automated tests, a 30-case evaluation harness with a baseline comparison, and a confidence score on every answer. | `tests/`, `src/evaluate.py`, `data/evaluation_cases.json` |
 | Guardrails and logging | Input checks, a relevance gate that declines instead of guessing, clamped numeric targets, exclusions, and a log of every run. | `src/guardrails.py`, `src/app_logging.py` |
 
 The new pieces are part of the main application, not side scripts: `python -m src.main
@@ -172,7 +172,7 @@ python -m src.main --ask "something mellow for late-night studying"
 | `python -m src.main --chat` | Keeps answering until you type `quit` |
 | `python -m src.main` | Runs the original VibeFinder 1.0 taste profiles |
 | `python -m src.main --list` | Lists the profiles and scoring modes |
-| `python -m pytest` | Runs the 149 automated tests |
+| `python -m pytest` | Runs the 152 automated tests |
 | `python -m src.evaluate --baseline` | Runs the 30-case evaluation with the baseline comparison |
 
 Every run is logged to `logs/vibefinder.log` (created on first run, not committed).
@@ -401,7 +401,7 @@ from "trust this" to "treat as a guess", not as a percentage chance of being rig
 
 ## Testing summary
 
-**Automated tests: 149 of 149 pass** (`python -m pytest`,
+**Automated tests: 152 of 152 pass** (`python -m pytest`,
 [output](assets/sample_runs/06_test_suite.txt)). They cover the original recommender,
 the knowledge base, tokenizing and retrieval, guardrails and logging, the planner
 (including negation and decades), the ranker, the self-check and plan revision, both
@@ -484,7 +484,7 @@ applied-ai-system-project/
 │   ├── app_logging.py            Logging setup
 │   ├── recommender.py            VibeFinder 1.0 scoring core
 │   └── table_format.py           ASCII table output
-└── tests/                        149 pytest tests
+└── tests/                        152 pytest tests
 ```
 
 ---
